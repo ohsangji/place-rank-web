@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>회원가입 - 이지보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue:#2563EB;--blue-dark:#1D4ED8;--blue-light:#DBEAFE;--blue-50:#EFF6FF;
+  --navy:#0F172A;--slate:#334155;--gray:#64748B;--gray-light:#94A3B8;
+  --gray-border:#E2E8F0;--gray-bg:#F8FAFC;--white:#FFFFFF;
+  --green:#10B981;--green-light:#D1FAE5;--red:#EF4444;--amber:#F59E0B;
+  --card-bg:#FFFFFF;--body-bg:#F8FAFC;--text:#0F172A;--text-sub:#64748B;
+  --input-bg:#F8FAFC;--input-border:#E2E8F0;
+  --header-bg:#FFFFFF;--header-border:#E2E8F0;
+  --font:'Noto Sans KR',sans-serif;--radius:16px;
+  --shadow-lg:0 10px 25px -5px rgba(15,23,42,.08),0 8px 10px -6px rgba(15,23,42,.03);
+}
+[data-theme="dark"]{
+  --card-bg:#1E1E2E;--body-bg:#0F0F1A;--text:#E2E8F0;--text-sub:#94A3B8;
+  --input-bg:#12121F;--input-border:rgba(255,255,255,.1);
+  --header-bg:#1A1A2E;--header-border:rgba(255,255,255,.06);
+  --gray-border:rgba(255,255,255,.08);--gray-bg:#12121F;--white:#1E1E2E;
+  --shadow-lg:0 10px 25px rgba(0,0,0,.3);
+}
+body{font-family:var(--font);background:var(--body-bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
+
+/* ── 헤더 ── */
+.header{background:var(--header-bg);border-bottom:1px solid var(--header-border);padding:0 24px;transition:background .3s}
+.header-inner{max-width:1080px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}
+.logo-area{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+.logo-text{font-size:17px;font-weight:800;letter-spacing:-.03em}
+.logo-text small{font-size:11px;font-weight:500;color:var(--text-sub);margin-left:4px}
+.header-links a{font-size:13px;font-weight:600;color:var(--text-sub);text-decoration:none;padding:7px 14px;border-radius:8px;transition:all .15s}
+.header-links a:hover{background:var(--blue-50);color:var(--blue)}
+[data-theme="dark"] .header-links a:hover{background:rgba(37,99,235,.15)}
+
+/* ── 메인 ── */
+.main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:32px 20px}
+.auth-card{width:100%;max-width:520px;background:var(--card-bg);border:1px solid var(--gray-border);border-radius:var(--radius);padding:36px;box-shadow:var(--shadow-lg);transition:background .3s,border .3s}
+.card-header{text-align:center;margin-bottom:8px}
+.card-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--blue-dark));display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;box-shadow:0 6px 16px rgba(37,99,235,.25)}
+.card-title{font-size:20px;font-weight:800;letter-spacing:-.03em}
+.card-sub{font-size:12px;color:var(--text-sub);margin-top:4px}
+
+/* ── 스텝 ── */
+.steps{display:flex;align-items:center;justify-content:center;margin:24px 0 28px}
+.step-item{display:flex;align-items:center}
+.step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:var(--gray-bg);border:2px solid var(--gray-border);color:var(--gray-light);transition:all .3s}
+.step-num.active{background:var(--blue);border-color:var(--blue);color:white;box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+.step-num.done{background:var(--green);border-color:var(--green);color:white}
+.step-lbl{font-size:11px;color:var(--gray-light);margin-left:5px;margin-right:10px;font-weight:500;transition:color .3s}
+.step-lbl.active{color:var(--blue);font-weight:600}
+.step-line{width:24px;height:2px;background:var(--gray-border);margin:0 2px;transition:background .3s;border-radius:1px}
+.step-line.active{background:var(--blue)}
+
+/* ── 폼 ── */
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:13px;color:var(--text-sub);margin-bottom:6px;font-weight:600}
+.form-label .req{color:var(--red);margin-left:1px}
+.form-input{width:100%;padding:11px 14px;background:var(--input-bg);border:1.5px solid var(--input-border);border-radius:10px;color:var(--text);font-size:14px;font-family:var(--font);transition:border .2s,box-shadow .2s,background .3s}
+.form-input::placeholder{color:var(--gray-light)}
+.form-input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.form-input:disabled{opacity:.5;cursor:not-allowed}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-hint{font-size:11px;color:var(--gray-light);margin-top:5px}
+
+/* ── 비밀번호 눈 아이콘 ── */
+.pw-wrap{position:relative}
+.pw-wrap .form-input{padding-right:42px}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-light);font-size:18px;padding:4px;transition:color .15s}
+.pw-eye:hover{color:var(--text)}
+
+/* ── 회원 유형 ── */
+.type-label{font-size:14px;font-weight:700;margin-bottom:14px}
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.type-card{padding:18px 10px;border:2px solid var(--gray-border);border-radius:12px;text-align:center;cursor:pointer;transition:all .2s;background:var(--card-bg);position:relative}
+.type-card:hover{border-color:var(--blue-light)}
+.type-card.selected{border-color:var(--blue);background:var(--blue-50);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+[data-theme="dark"] .type-card.selected{background:rgba(37,99,235,.1)}
+.type-card.selected::after{content:'✓';position:absolute;top:8px;right:10px;width:20px;height:20px;border-radius:50%;background:var(--blue);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.type-icon{font-size:28px;margin-bottom:6px}
+.type-name{font-size:14px;font-weight:700}
+.type-desc{font-size:11px;color:var(--text-sub);margin-top:3px;line-height:1.4}
+
+/* ── 파일 업로드 ── */
+.upload-section{margin-bottom:20px;display:none}
+.upload-section.show{display:block;animation:fadeUp .3s ease}
+.upload-area{border:2px dashed var(--gray-border);border-radius:12px;padding:30px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--gray-bg)}
+.upload-area:hover{border-color:var(--blue-light)}
+.upload-area.dragover{border-color:var(--blue);background:var(--blue-50)}
+.upload-area.has-file{border-color:var(--green);border-style:solid}
+.upload-icon{font-size:32px;margin-bottom:8px;color:var(--gray-light)}
+.upload-text{font-size:13px;color:var(--text-sub);line-height:1.6}
+.upload-text strong{color:var(--text);display:block;margin-bottom:4px;font-size:14px}
+.upload-btn{display:inline-block;margin-top:10px;padding:8px 22px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s}
+.upload-btn:hover{background:var(--blue-dark)}
+.upload-info{display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--gray-light)}
+.upload-file-input{display:none}
+.file-preview{display:none;align-items:center;gap:10px;padding:12px;background:var(--gray-bg);border:1px solid var(--gray-border);border-radius:10px;margin-top:10px}
+.file-preview.show{display:flex}
+.file-preview-icon{font-size:22px}
+.file-preview-info{flex:1}
+.file-preview-name{font-size:13px;font-weight:600}
+.file-preview-size{font-size:11px;color:var(--text-sub)}
+.file-preview-del{width:28px;height:28px;border-radius:6px;border:none;background:rgba(239,68,68,.1);color:var(--red);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* ── 인증행 ── */
+.verify-row{display:flex;gap:8px}
+.verify-row .form-input{flex:1}
+.btn-verify{padding:0 16px;border:none;border-radius:10px;background:var(--slate);color:white;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s;font-family:var(--font)}
+.btn-verify:hover{background:var(--navy)}
+.btn-verify:disabled{opacity:.4;cursor:not-allowed}
+.btn-verify.sent{background:var(--green)}
+
+/* ── 비밀번호 강도 바 ── */
+.pw-bar-wrap{height:4px;border-radius:2px;background:var(--gray-bg);margin-top:6px;overflow:hidden;border:1px solid var(--gray-border)}
+.pw-bar{height:100%;border-radius:2px;transition:width .3s,background .3s;width:0}
+.pw-msg{font-size:11px;margin-top:4px;min-height:16px;font-weight:600;transition:color .3s}
+
+/* ── 약관 체크박스 (셀러닷컴 스타일) ── */
+.terms-section{border:1px solid var(--gray-border);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.terms-all{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--gray-bg);border-bottom:1px solid var(--gray-border);cursor:pointer;font-weight:700;font-size:14px;transition:background .3s}
+.terms-all:hover{background:var(--blue-50)}
+[data-theme="dark"] .terms-all:hover{background:rgba(37,99,235,.08)}
+.terms-all input{width:18px;height:18px;accent-color:var(--blue);cursor:pointer}
+.terms-item{display:flex;align-items:center;padding:11px 16px;border-bottom:1px solid var(--gray-border);font-size:13px;transition:background .15s}
+.terms-item:last-child{border-bottom:none}
+.terms-item:hover{background:var(--gray-bg)}
+[data-theme="dark"] .terms-item:hover{background:rgba(255,255,255,.02)}
+.terms-item input{width:16px;height:16px;accent-color:var(--blue);cursor:pointer;margin-right:10px;flex-shrink:0}
+.terms-item label{flex:1;cursor:pointer;color:var(--text-sub);font-weight:500}
+.terms-item .view-btn{font-size:12px;color:var(--gray-light);text-decoration:none;font-weight:500;cursor:pointer;padding:4px 8px;border-radius:4px;transition:color .15s;background:none;border:none;font-family:var(--font)}
+.terms-item .view-btn:hover{color:var(--blue)}
+
+/* ── 모달 ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card-bg);border-radius:14px;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3);transition:background .3s}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--gray-border)}
+.modal-header h3{font-size:16px;font-weight:800}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-sub);padding:4px}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:20px 24px;overflow-y:auto;flex:1}
+.modal-content{background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;padding:16px;font-size:13px;color:var(--text-sub);line-height:1.8}
+.modal-footer{padding:16px 24px;text-align:center;border-top:1px solid var(--gray-border)}
+.modal-confirm{padding:10px 40px;border:none;border-radius:8px;background:var(--blue);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s}
+.modal-confirm:hover{background:var(--blue-dark)}
+
+/* ── 버튼 ── */
+.btn-primary{width:100%;padding:13px;border:none;border-radius:10px;background:var(--blue);color:white;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s}
+.btn-primary:hover{background:var(--blue-dark);transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.3)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.btn-outline{padding:13px;border:1.5px solid var(--gray-border);border-radius:10px;background:var(--card-bg);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s}
+.btn-outline:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-50)}
+[data-theme="dark"] .btn-outline:hover{background:rgba(37,99,235,.1)}
+.btn-fill{padding:13px;border:none;border-radius:10px;background:var(--blue);color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s}
+.btn-fill:hover{background:var(--blue-dark)}
+.btn-fill:disabled{opacity:.4;cursor:not-allowed}
+
+.link-login{text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--gray-border);font-size:13px;color:var(--text-sub)}
+.link-login a{color:var(--blue);text-decoration:none;font-weight:600}
+
+.step-panel{display:none}
+.step-panel.active{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.msg{padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:16px;display:none;font-weight:500}
+.msg.error{background:#FEF2F2;border:1px solid #FECACA;color:#DC2626}
+[data-theme="dark"] .msg.error{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#FCA5A5}
+.msg.show{display:flex;align-items:center;gap:8px}
+
+.complete-area{text-align:center;padding:20px 0}
+.complete-icon{font-size:56px;margin-bottom:16px}
+.complete-title{font-size:20px;font-weight:800;margin-bottom:8px}
+.complete-desc{font-size:14px;color:var(--text-sub);line-height:1.7}
+
+footer{text-align:center;padding:24px;color:var(--text-sub);font-size:11px;line-height:1.8}
+
+.theme-toggle{position:fixed;bottom:24px;right:24px;width:48px;height:48px;border-radius:50%;border:1px solid var(--gray-border);background:var(--card-bg);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;box-shadow:0 4px 12px rgba(0,0,0,.1);transition:all .3s;z-index:998}
+.theme-toggle:hover{transform:scale(1.1)}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);padding:12px 24px;border-radius:10px;color:white;font-size:13px;font-weight:600;transition:transform .3s;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{background:var(--green)}.toast.error{background:var(--red)}
+
+@media(max-width:540px){
+  .auth-card{padding:28px 18px}
+  .form-row{grid-template-columns:1fr}
+  .type-grid{grid-template-columns:1fr}
+  .step-lbl{display:none}
+  .btn-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="header"><div class="header-inner">
+  <a class="logo-area" href="/">
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect x="4" y="5" width="24" height="25" rx="4" fill="#2563EB"/><rect x="10" y="2" width="12" height="6" rx="3" fill="#1D4ED8" stroke="#2563EB" stroke-width="1"/><rect x="12" y="3" width="8" height="4" rx="2" fill="#93C5FD"/><rect x="8" y="12" width="10" height="2.5" rx="1.2" fill="#DBEAFE"/><rect x="8" y="17" width="12" height="2.5" rx="1.2" fill="#BFDBFE"/><rect x="8" y="22" width="8" height="2.5" rx="1.2" fill="#DBEAFE"/><circle cx="23" cy="23" r="6" fill="#10B981"/><path d="M20 23L22 25L26 21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="logo-text">이지보드 <small>EasyBoard</small></span>
+  </a>
+  <div class="header-links"><a href="/">홈</a><a href="/login">로그인</a></div>
+</div></div>
+
+<div class="main"><div class="auth-card">
+  <div class="card-header">
+    <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z" fill="#DBEAFE"/></svg></div>
+    <div class="card-title">회원가입 신청</div>
+    <div class="card-sub">승인이 늦으면 관리자 문의 부탁드립니다</div>
+  </div>
+
+  <div class="steps" id="stepsBar">
+    <div class="step-item"><div class="step-num active" id="sn1">1</div><span class="step-lbl active" id="sl1">회원 유형</span></div>
+    <div class="step-line" id="ln1"></div>
+    <div class="step-item"><div class="step-num" id="sn2">2</div><span class="step-lbl" id="sl2">기본 정보</span></div>
+    <div class="step-line" id="ln2"></div>
+    <div class="step-item"><div class="step-num" id="sn3">3</div><span class="step-lbl" id="sl3">본인 인증</span></div>
+    <div class="step-line" id="ln3"></div>
+    <div class="step-item"><div class="step-num" id="sn4">4</div><span class="step-lbl" id="sl4">비밀번호·약관</span></div>
+  </div>
+
+  <div class="msg" id="msg"><span id="msgIcon"></span><span id="msgText"></span></div>
+
+  <!-- ═══ STEP 1: 회원 유형 ═══ -->
+  <div class="step-panel active" id="panel1">
+    <div class="type-label">회원 유형 선택</div>
+    <div class="type-grid">
+      <div class="type-card selected" onclick="selectType('individual')" id="type-individual">
+        <div class="type-icon">🏪</div><div class="type-name">개인 사업자</div><div class="type-desc">개인 사업자등록증 보유</div>
+      </div>
+      <div class="type-card" onclick="selectType('corporate')" id="type-corporate">
+        <div class="type-icon">🏢</div><div class="type-name">법인 사업자</div><div class="type-desc">법인 사업자등록증 보유</div>
+      </div>
+      <div class="type-card" onclick="selectType('general')" id="type-general">
+        <div class="type-icon">👤</div><div class="type-name">일반 회원</div><div class="type-desc">사업자등록증 없음</div>
+      </div>
+    </div>
+    <div class="upload-section" id="uploadSection">
+      <div class="form-label">사업자 등록증 업로드 <span class="req">*</span></div>
+      <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-icon">📄</div>
+        <div class="upload-text"><strong>pdf, jpg, png 형식의<br>사업자 등록증 업로드</strong></div>
+        <button class="upload-btn" type="button" onclick="event.stopPropagation();document.getElementById('fileInput').click()">파일 선택</button>
+        <input type="file" class="upload-file-input" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFile(this)">
+      </div>
+      <div class="upload-info"><span>파일을 드래그하여 업로드 가능합니다.</span><span id="fileSizeLabel">0MB / 10MB</span></div>
+      <div class="file-preview" id="filePreview">
+        <div class="file-preview-icon" id="fpIcon">📄</div>
+        <div class="file-preview-info"><div class="file-preview-name" id="fpName"></div><div class="file-preview-size" id="fpSize"></div></div>
+        <button class="file-preview-del" onclick="removeFile()">✕</button>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="goStep(2)">다음 단계 →</button>
+  </div>
+
+  <!-- ═══ STEP 2: 기본 정보 ═══ -->
+  <div class="step-panel" id="panel2">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">아이디 <span class="req">*</span></label><input class="form-input" type="text" id="regId" placeholder="영문, 숫자 4~20자"></div>
+      <div class="form-group"><label class="form-label">이메일 <span class="req">*</span></label><input class="form-input" type="email" id="regEmail" placeholder="example@email.com"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">이름 <span class="req">*</span></label><input class="form-input" type="text" id="regName" placeholder="실명 입력"></div>
+      <div class="form-group" id="companyGroup"><label class="form-label">회사명 <span class="req">*</span></label><input class="form-input" type="text" id="regCompany" placeholder="회사명 또는 상호명"></div>
+    </div>
+    <div class="form-group"><label class="form-label">추천인 아이디 (선택)</label><input class="form-input" type="text" id="regReferrer" placeholder="추천인이 없으면 비워두세요"><div class="form-hint">추천인이 없으면 비워두세요.</div></div>
+    <div class="btn-row"><button class="btn-outline" onclick="goStep(1)">← 이전</button><button class="btn-fill" onclick="goStep(3)">다음 단계 →</button></div>
+  </div>
+
+  <!-- ═══ STEP 3: 본인 인증 ═══ -->
+  <div class="step-panel" id="panel3">
+    <div class="form-group">
+      <label class="form-label">휴대폰 번호 <span class="req">*</span></label>
+      <div class="verify-row"><input class="form-input" type="tel" id="regPhone" placeholder="010-0000-0000" maxlength="13"><button class="btn-verify" id="sendCodeBtn" onclick="sendCode()">인증요청</button></div>
+      <div class="form-hint">010 번호만 가능 · 일일 5회 발송 제한</div>
+    </div>
+    <div class="form-group" id="codeGroup" style="display:none">
+      <label class="form-label">인증번호 <span class="req">*</span></label>
+      <div class="verify-row"><input class="form-input" type="text" id="verifyCode" placeholder="6자리 인증번호" maxlength="6"><button class="btn-verify" onclick="verifyCode()">확인</button></div>
+      <div class="form-hint" id="codeTimer" style="color:var(--amber)"></div>
+    </div>
+    <div class="btn-row"><button class="btn-outline" onclick="goStep(2)">← 이전</button><button class="btn-fill" id="step3Next" onclick="goStep(4)" disabled>다음 단계 →</button></div>
+  </div>
+
+  <!-- ═══ STEP 4: 비밀번호 & 약관 ═══ -->
+  <div class="step-panel" id="panel4">
+    <div class="form-group">
+      <label class="form-label">비밀번호 <span class="req">*</span></label>
+      <div class="pw-wrap"><input class="form-input" type="password" id="regPw" placeholder="영문+숫자+특수문자 8자 이상" oninput="checkPw()"><button class="pw-eye" type="button" onclick="togglePwEye('regPw',this)">👁</button></div>
+      <div class="pw-bar-wrap"><div class="pw-bar" id="pwBar"></div></div>
+      <div class="pw-msg" id="pwMsg"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">비밀번호 확인 <span class="req">*</span></label>
+      <div class="pw-wrap"><input class="form-input" type="password" id="regPw2" placeholder="비밀번호를 다시 입력" oninput="checkPwMatch()"><button class="pw-eye" type="button" onclick="togglePwEye('regPw2',this)">👁</button></div>
+      <div class="pw-msg" id="pwMatchMsg"></div>
+    </div>
+
+    <!-- 약관 (셀러닷컴 스타일) -->
+    <div class="terms-section">
+      <div class="terms-all" onclick="toggleAllTerms()">
+        <input type="checkbox" id="agreeAll" onclick="event.stopPropagation();toggleAllTerms()">
+        <span>약관 전체 동의</span>
+      </div>
+      <div class="terms-item">
+        <input type="checkbox" id="agree1" class="term-check" onchange="syncTerms()">
+        <label for="agree1">(필수) 만 14세 이상입니다</label>
+      </div>
+      <div class="terms-item">
+        <input type="checkbox" id="agree2" class="term-check" onchange="syncTerms()">
+        <label for="agree2">(필수) 서비스 이용약관 동의</label>
+        <button class="view-btn" onclick="openModal('terms')">보기</button>
+      </div>
+      <div class="terms-item">
+        <input type="checkbox" id="agree3" class="term-check" onchange="syncTerms()">
+        <label for="agree3">(필수) 개인정보 수집 및 이용 동의</label>
+        <button class="view-btn" onclick="openModal('privacy')">보기</button>
+      </div>
+      <div class="terms-item">
+        <input type="checkbox" id="agree4" class="term-check" onchange="syncTerms()">
+        <label for="agree4">(선택) 마케팅 정보 수신 동의</label>
+        <button class="view-btn" onclick="openModal('marketing')">보기</button>
+      </div>
+    </div>
+
+    <div class="btn-row"><button class="btn-outline" onclick="goStep(3)">← 이전</button><button class="btn-fill" id="registerBtn" onclick="doRegister()">회원가입 신청</button></div>
+  </div>
+
+  <!-- ═══ 완료 ═══ -->
+  <div class="step-panel" id="panelDone">
+    <div class="complete-area">
+      <div class="complete-icon">🎉</div>
+      <div class="complete-title">회원가입이 완료되었습니다!</div>
+      <div class="complete-desc">승인 후 서비스를 이용하실 수 있습니다.<br>승인이 늦어지면 관리자에게 문의해주세요.</div>
+    </div>
+    <button class="btn-primary" onclick="location.href='/login'" style="margin-top:12px">로그인하러 가기 →</button>
+  </div>
+
+  <div class="link-login" id="linkLogin">이미 계정이 있으신가요? <a href="/login">로그인</a></div>
+</div></div>
+
+<!-- ═══ 약관 모달들 ═══ -->
+<div class="modal-overlay" id="modal-terms" onclick="if(event.target===this)closeModal('terms')">
+  <div class="modal">
+    <div class="modal-header"><h3>서비스 이용약관</h3><button class="modal-close" onclick="closeModal('terms')">✕</button></div>
+    <div class="modal-body"><div class="modal-content">
+      제1조 (목적)<br>본 약관은 이지보드(이하 "회사")가 제공하는 서비스의 이용조건 및 절차, 회사와 회원 간의 권리, 의무 및 책임사항 등을 규정함을 목적으로 합니다.<br><br>
+      제2조 (서비스 내용)<br>회사는 네이버 플레이스 키워드 추출, 순위 분석, 키워드 분산 관리 도구를 제공합니다. 서비스는 무료로 제공되며, 향후 유료 기능이 추가될 수 있습니다.<br><br>
+      제3조 (회원가입)<br>회원가입은 이용자가 약관에 동의하고 회원정보를 기입한 후 회사가 승인함으로써 성립합니다.<br><br>
+      제4조 (회원의 의무)<br>회원은 서비스를 정상적인 목적으로만 이용해야 하며, 자동화 도구를 이용한 과도한 요청이나 서비스 남용, 타인의 계정을 도용하는 행위를 금지합니다.<br><br>
+      제5조 (서비스 변경 및 중단)<br>회사는 운영상, 기술상의 필요에 따라 서비스를 변경하거나 중단할 수 있으며, 이 경우 사전에 공지합니다.<br><br>
+      제6조 (면책)<br>서비스는 네이버 플랫폼의 변경에 따라 일시적으로 중단되거나 결과가 달라질 수 있으며, 이에 대한 책임은 회사에 없습니다.
+    </div></div>
+    <div class="modal-footer"><button class="modal-confirm" onclick="closeModal('terms')">확인</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-privacy" onclick="if(event.target===this)closeModal('privacy')">
+  <div class="modal">
+    <div class="modal-header"><h3>개인정보 수집 및 이용 동의</h3><button class="modal-close" onclick="closeModal('privacy')">✕</button></div>
+    <div class="modal-body"><div class="modal-content">
+      1. 수집하는 개인정보 항목: 아이디, 비밀번호, 이름, 이메일, 회사명, 휴대폰번호<br><br>
+      2. 수집 목적: 회원 식별 및 서비스 제공, 고객 문의 대응, 서비스 개선<br><br>
+      3. 보유 및 이용 기간: 회원 탈퇴 시까지 (관련 법령에 따라 일정 기간 보존이 필요한 경우 해당 기간까지)<br><br>
+      4. 동의 거부 권리: 개인정보 수집에 대한 동의를 거부할 수 있으나, 이 경우 회원가입이 제한됩니다.<br><br>
+      5. 개인정보는 서비스 제공 목적으로만 사용되며, 제3자에게 제공하지 않습니다.
+    </div></div>
+    <div class="modal-footer"><button class="modal-confirm" onclick="closeModal('privacy')">확인</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-marketing" onclick="if(event.target===this)closeModal('marketing')">
+  <div class="modal">
+    <div class="modal-header"><h3>마케팅 정보 수신 동의</h3><button class="modal-close" onclick="closeModal('marketing')">✕</button></div>
+    <div class="modal-body"><div class="modal-content">
+      귀하는 마케팅 정보 수신에 대한 동의를 거부할 권리가 있습니다.<br><br>
+      수신 동의 시 이지보드의 신규 기능 안내, 이벤트 및 프로모션 정보, 서비스 업데이트 소식을 이메일 또는 문자메시지로 받아보실 수 있습니다.<br><br>
+      동의하지 않으셔도 서비스 이용에는 제한이 없으며, 동의 후에도 언제든지 수신을 거부하실 수 있습니다.
+    </div></div>
+    <div class="modal-footer"><button class="modal-confirm" onclick="closeModal('marketing')">확인</button></div>
+  </div>
+</div>
+
+<footer><strong>이지보드</strong> | 네이버 플레이스 키워드 분석 솔루션<br>© 2026 이지보드. All rights reserved.</footer>
+<div class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let currentStep=1,phoneVerified=false,timerInt=null,memberType='individual',uploadedFile=null;
+const STEPS=4;
+
+// ── 다크모드 ──
+function toggleTheme(){const h=document.documentElement,d=h.getAttribute('data-theme')==='dark';h.setAttribute('data-theme',d?'light':'dark');document.getElementById('themeToggle').textContent=d?'🌙':'☀️';localStorage.setItem('theme',d?'light':'dark')}
+(function(){const t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');document.getElementById('themeToggle').textContent='☀️'}})();
+
+function showToast(m,t='success'){const e=document.getElementById('toast');e.textContent=m;e.className='toast '+t;setTimeout(()=>e.classList.add('show'),10);setTimeout(()=>e.classList.remove('show'),3000)}
+function showMsg(m,t='error'){document.getElementById('msgIcon').textContent=t==='error'?'⚠️':'✅';document.getElementById('msgText').textContent=m;document.getElementById('msg').className='msg '+t+' show';setTimeout(()=>document.getElementById('msg').classList.remove('show'),4000)}
+
+// ── 비밀번호 눈 ──
+function togglePwEye(id,btn){const inp=document.getElementById(id);const isP=inp.type==='password';inp.type=isP?'text':'password';btn.textContent=isP?'🙈':'👁'}
+
+// ── 모달 ──
+function openModal(id){document.getElementById('modal-'+id).classList.add('show')}
+function closeModal(id){document.getElementById('modal-'+id).classList.remove('show')}
+
+// ── 약관 체크 ──
+function toggleAllTerms(){const all=document.getElementById('agreeAll');const checks=document.querySelectorAll('.term-check');const val=!all.checked;all.checked=val;checks.forEach(c=>c.checked=val)}
+function syncTerms(){const checks=document.querySelectorAll('.term-check');document.getElementById('agreeAll').checked=[...checks].every(c=>c.checked)}
+
+// ── 회원 유형 ──
+function selectType(type){memberType=type;document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('selected'));document.getElementById('type-'+type).classList.add('selected');document.getElementById('uploadSection').classList.toggle('show',type!=='general');document.getElementById('companyGroup').style.display=type==='general'?'none':'';if(type==='general')document.getElementById('regCompany').value=''}
+
+// ── 파일 ──
+const da=document.getElementById('uploadArea');
+['dragenter','dragover'].forEach(e=>da.addEventListener(e,ev=>{ev.preventDefault();da.classList.add('dragover')}));
+['dragleave','drop'].forEach(e=>da.addEventListener(e,ev=>{ev.preventDefault();da.classList.remove('dragover')}));
+da.addEventListener('drop',ev=>{if(ev.dataTransfer.files.length)handleFileObj(ev.dataTransfer.files[0])});
+function handleFile(inp){if(inp.files.length)handleFileObj(inp.files[0])}
+function handleFileObj(f){
+  if(!['application/pdf','image/jpeg','image/png'].includes(f.type)){showMsg('pdf, jpg, png만 가능');return}
+  if(f.size>10*1024*1024){showMsg('10MB 이하만 가능');return}
+  uploadedFile=f;const s=(f.size/(1024*1024)).toFixed(2);
+  document.getElementById('fileSizeLabel').textContent=s+'MB / 10MB';
+  document.getElementById('fpName').textContent=f.name;document.getElementById('fpSize').textContent=s+'MB';
+  document.getElementById('fpIcon').textContent=f.name.endsWith('.pdf')?'📑':'🖼️';
+  document.getElementById('filePreview').classList.add('show');da.classList.add('has-file');
+}
+function removeFile(){uploadedFile=null;document.getElementById('fileInput').value='';document.getElementById('filePreview').classList.remove('show');da.classList.remove('has-file');document.getElementById('fileSizeLabel').textContent='0MB / 10MB'}
+
+// ── 스텝 ──
+function goStep(n){
+  if(n===2&&currentStep===1&&memberType!=='general'&&!uploadedFile){showMsg('사업자 등록증을 업로드해주세요.');return}
+  if(n===3&&currentStep===2){
+    const id=document.getElementById('regId').value.trim(),em=document.getElementById('regEmail').value.trim(),nm=document.getElementById('regName').value.trim(),co=document.getElementById('regCompany').value.trim();
+    if(!id||!em||!nm||(memberType!=='general'&&!co)){showMsg('필수 항목을 모두 입력해주세요.');return}
+    if(!/^[a-zA-Z0-9]{4,20}$/.test(id)){showMsg('아이디는 영문, 숫자 4~20자');return}
+    if(!/\S+@\S+\.\S+/.test(em)){showMsg('올바른 이메일 형식을 입력해주세요.');return}
+  }
+  if(n===4&&!phoneVerified){showMsg('휴대폰 인증을 완료해주세요.');return}
+  currentStep=n;
+  document.querySelectorAll('.step-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel'+n).classList.add('active');
+  for(let i=1;i<=STEPS;i++){
+    const sn=document.getElementById('sn'+i),sl=document.getElementById('sl'+i);
+    sn.classList.remove('active','done');sl.classList.remove('active');
+    if(i<n){sn.classList.add('done');sn.textContent='✓'}else{sn.textContent=i;if(i===n)sn.classList.add('active')}
+    if(i===n)sl.classList.add('active');
+    if(i<STEPS)document.getElementById('ln'+i).classList.toggle('active',i<n);
+  }
+}
+
+// ── 전화 ──
+document.getElementById('regPhone').addEventListener('input',function(){let v=this.value.replace(/\D/g,'');if(v.length>11)v=v.slice(0,11);if(v.length>7)v=v.slice(0,3)+'-'+v.slice(3,7)+'-'+v.slice(7);else if(v.length>3)v=v.slice(0,3)+'-'+v.slice(3);this.value=v});
+
+async function sendCode(){
+  const ph=document.getElementById('regPhone').value.replace(/-/g,'');if(ph.length<10){showMsg('올바른 번호를 입력해주세요.');return}
+  const btn=document.getElementById('sendCodeBtn');btn.disabled=true;
+  try{const r=await fetch('/api/auth/send-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:ph})});const d=await r.json();
+    if(d.success){btn.classList.add('sent');btn.textContent='재발송';document.getElementById('codeGroup').style.display='block';showToast('인증번호: '+(d._devCode||'발송완료'));startTimer(180)}else showMsg(d.message);
+  }catch(e){showMsg('서버 연결 오류')}setTimeout(()=>btn.disabled=false,3000);
+}
+function startTimer(s){clearInterval(timerInt);const el=document.getElementById('codeTimer');el.style.color='var(--amber)';timerInt=setInterval(()=>{const m=Math.floor(s/60),ss=s%60;el.textContent=`유효시간: ${m}:${String(ss).padStart(2,'0')}`;if(--s<0){clearInterval(timerInt);el.textContent='만료됨. 재발송해주세요.';el.style.color='var(--red)'}},1000)}
+async function verifyCode(){
+  const code=document.getElementById('verifyCode').value.trim(),ph=document.getElementById('regPhone').value.replace(/-/g,'');
+  if(code.length!==6){showMsg('6자리 인증번호를 입력해주세요.');return}
+  try{const r=await fetch('/api/auth/verify-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:ph,code})});const d=await r.json();
+    if(d.success){phoneVerified=true;clearInterval(timerInt);document.getElementById('codeTimer').textContent='✅ 인증 완료';document.getElementById('codeTimer').style.color='var(--green)';document.getElementById('step3Next').disabled=false;document.getElementById('regPhone').disabled=true;document.getElementById('verifyCode').disabled=true;showToast('본인인증 완료!')}else showMsg(d.message);
+  }catch(e){showMsg('서버 연결 오류')}
+}
+
+// ── 비밀번호 강도 ──
+function checkPw(){
+  const pw=document.getElementById('regPw').value,bar=document.getElementById('pwBar'),msg=document.getElementById('pwMsg');
+  if(!pw){bar.style.width='0';msg.textContent='';return}
+  let s=0;
+  if(pw.length>=8)s++;
+  if(/[a-z]/.test(pw)&&/[A-Z]/.test(pw))s++;
+  if(/\d/.test(pw))s++;
+  if(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pw))s++;
+  const colors=['#EF4444','#F59E0B','#EAB308','#10B981'];
+  const labels=['⚠️ 매우 위험합니다 — 영문 대소문자, 숫자, 특수문자를 조합하세요','⚠️ 위험합니다 — 조합을 더 추가하세요','🔒 보통입니다 — 조금 더 강화하면 좋아요','✅ 안전합니다'];
+  bar.style.width=(s*25)+'%';
+  bar.style.background=colors[Math.max(0,s-1)]||'var(--gray-border)';
+  msg.textContent=labels[Math.max(0,s-1)]||'';
+  msg.style.color=colors[Math.max(0,s-1)]||'var(--gray)';
+  checkPwMatch();
+}
+function checkPwMatch(){
+  const pw=document.getElementById('regPw').value,pw2=document.getElementById('regPw2').value,msg=document.getElementById('pwMatchMsg');
+  if(!pw2){msg.textContent='';return}
+  if(pw===pw2){msg.textContent='✅ 비밀번호가 일치합니다';msg.style.color='#10B981'}
+  else{msg.textContent='❌ 비밀번호가 일치하지 않습니다';msg.style.color='#EF4444'}
+}
+
+// ── 가입 ──
+async function doRegister(){
+  const pw=document.getElementById('regPw').value,pw2=document.getElementById('regPw2').value;
+  if(!pw||pw.length<8){showMsg('비밀번호는 8자 이상');return}
+  if(pw!==pw2){showMsg('비밀번호가 일치하지 않습니다.');return}
+  if(!document.getElementById('agree1').checked||!document.getElementById('agree2').checked||!document.getElementById('agree3').checked){showMsg('필수 약관에 모두 동의해주세요.');return}
+  const btn=document.getElementById('registerBtn');btn.disabled=true;btn.textContent='처리중...';
+  const fd=new FormData();
+  fd.append('username',document.getElementById('regId').value.trim());
+  fd.append('email',document.getElementById('regEmail').value.trim());
+  fd.append('name',document.getElementById('regName').value.trim());
+  fd.append('company',document.getElementById('regCompany').value.trim());
+  fd.append('phone',document.getElementById('regPhone').value.replace(/-/g,''));
+  fd.append('referrer',document.getElementById('regReferrer').value.trim());
+  fd.append('password',pw);fd.append('memberType',memberType);
+  fd.append('marketing',document.getElementById('agree4').checked?'Y':'N');
+  if(uploadedFile)fd.append('bizDoc',uploadedFile);
+  try{const r=await fetch('/api/auth/register',{method:'POST',body:fd});const d=await r.json();
+    if(d.success){document.querySelectorAll('.step-panel').forEach(p=>p.classList.remove('active'));document.getElementById('panelDone').classList.add('active');document.getElementById('stepsBar').style.display='none';document.getElementById('linkLogin').style.display='none'}else showMsg(d.message);
+  }catch(e){showMsg('서버 연결 오류')}finally{btn.disabled=false;btn.textContent='회원가입 신청'}
+}
+
+// init upload section
+document.getElementById('uploadSection').classList.add('show');
+</script>
+</body></html>

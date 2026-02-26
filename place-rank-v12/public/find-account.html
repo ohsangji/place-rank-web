@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>계정 찾기 - 이지보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue:#2563EB;--blue-dark:#1D4ED8;--blue-light:#DBEAFE;--blue-50:#EFF6FF;
+  --navy:#0F172A;--slate:#334155;--gray:#64748B;--gray-light:#94A3B8;
+  --gray-border:#E2E8F0;--gray-bg:#F8FAFC;--white:#FFFFFF;
+  --green:#10B981;--green-light:#D1FAE5;--red:#EF4444;--amber:#F59E0B;
+  --card-bg:#FFFFFF;--body-bg:#F8FAFC;--text:#0F172A;--text-sub:#64748B;
+  --input-bg:#F8FAFC;--input-border:#E2E8F0;
+  --header-bg:#FFFFFF;--header-border:#E2E8F0;
+  --font:'Noto Sans KR',sans-serif;--radius:16px;
+  --shadow-lg:0 10px 25px -5px rgba(15,23,42,.08),0 8px 10px -6px rgba(15,23,42,.03);
+}
+[data-theme="dark"]{
+  --card-bg:#1E1E2E;--body-bg:#0F0F1A;--text:#E2E8F0;--text-sub:#94A3B8;
+  --input-bg:#12121F;--input-border:rgba(255,255,255,.1);
+  --header-bg:#1A1A2E;--header-border:rgba(255,255,255,.06);
+  --gray-border:rgba(255,255,255,.08);--gray-bg:#12121F;--white:#1E1E2E;
+  --shadow-lg:0 10px 25px rgba(0,0,0,.3);
+}
+body{font-family:var(--font);background:var(--body-bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
+.header{background:var(--header-bg);border-bottom:1px solid var(--header-border);padding:0 24px;transition:background .3s}
+.header-inner{max-width:1080px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}
+.logo-area{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+.logo-text{font-size:17px;font-weight:800;letter-spacing:-.03em}
+.logo-text small{font-size:11px;font-weight:500;color:var(--text-sub);margin-left:4px}
+.header-links a{font-size:13px;font-weight:600;color:var(--text-sub);text-decoration:none;padding:7px 14px;border-radius:8px;transition:all .15s}
+.header-links a:hover{background:var(--blue-50);color:var(--blue)}
+[data-theme="dark"] .header-links a:hover{background:rgba(37,99,235,.15)}
+
+.main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.auth-card{width:100%;max-width:460px;background:var(--card-bg);border:1px solid var(--gray-border);border-radius:var(--radius);padding:36px;box-shadow:var(--shadow-lg);transition:background .3s,border .3s}
+.card-header{text-align:center;margin-bottom:8px}
+.card-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--blue-dark));display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;box-shadow:0 6px 16px rgba(37,99,235,.25)}
+.card-title{font-size:20px;font-weight:800;letter-spacing:-.03em}
+.card-sub{font-size:12px;color:var(--text-sub);margin-top:4px}
+
+.tabs{display:flex;margin:24px 0 20px;border-bottom:2px solid var(--gray-border);gap:4px}
+.tab-btn{flex:1;padding:11px;text-align:center;font-size:14px;font-weight:600;color:var(--text-sub);background:none;border:none;cursor:pointer;position:relative;transition:color .2s;font-family:var(--font);border-radius:8px 8px 0 0}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--blue)}
+.tab-btn.active::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--blue);border-radius:1px}
+
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:13px;color:var(--text-sub);margin-bottom:6px;font-weight:600}
+.form-label .req{color:var(--red);margin-left:1px}
+.form-input{width:100%;padding:11px 14px;background:var(--input-bg);border:1.5px solid var(--input-border);border-radius:10px;color:var(--text);font-size:14px;font-family:var(--font);transition:border .2s,box-shadow .2s,background .3s}
+.form-input::placeholder{color:var(--gray-light)}
+.form-input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.form-input:disabled{opacity:.5;cursor:not-allowed}
+.form-hint{font-size:11px;color:var(--gray-light);margin-top:5px}
+
+.verify-row{display:flex;gap:8px}
+.verify-row .form-input{flex:1}
+.btn-verify{padding:0 16px;border:none;border-radius:10px;background:var(--slate);color:white;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s;font-family:var(--font)}
+.btn-verify:hover{background:var(--navy)}
+.btn-verify:disabled{opacity:.4;cursor:not-allowed}
+
+.btn-primary{width:100%;padding:13px;border:none;border-radius:10px;background:var(--blue);color:white;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s}
+.btn-primary:hover{background:var(--blue-dark);transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.3)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+.back-link{display:block;text-align:center;margin-top:18px}
+.back-link a{color:var(--text-sub);font-size:13px;text-decoration:none;font-weight:500}
+.back-link a:hover{color:var(--blue)}
+
+.tab-panel{display:none}.tab-panel.active{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.result-box{background:var(--blue-50);border:1.5px solid var(--blue-light);border-radius:12px;padding:24px;text-align:center;margin-bottom:16px;display:none}
+[data-theme="dark"] .result-box{background:rgba(37,99,235,.08);border-color:rgba(37,99,235,.2)}
+.result-box.show{display:block;animation:fadeUp .3s}
+.result-id{font-size:22px;font-weight:800;color:var(--blue);margin:8px 0}
+.result-label{font-size:13px;color:var(--text-sub)}
+
+.msg{padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:16px;display:none;font-weight:500}
+.msg.error{background:#FEF2F2;border:1px solid #FECACA;color:#DC2626}
+[data-theme="dark"] .msg.error{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#FCA5A5}
+.msg.show{display:flex;align-items:center;gap:8px}
+
+.pw-reset-form{display:none}.pw-reset-form.show{display:block;animation:fadeUp .3s}
+.pw-wrap{position:relative}.pw-wrap .form-input{padding-right:42px}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-light);font-size:18px;padding:4px}
+.pw-eye:hover{color:var(--text)}
+
+footer{text-align:center;padding:24px;color:var(--text-sub);font-size:11px;line-height:1.8}
+.theme-toggle{position:fixed;bottom:24px;right:24px;width:48px;height:48px;border-radius:50%;border:1px solid var(--gray-border);background:var(--card-bg);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;box-shadow:0 4px 12px rgba(0,0,0,.1);transition:all .3s;z-index:998}
+.theme-toggle:hover{transform:scale(1.1)}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);padding:12px 24px;border-radius:10px;color:white;font-size:13px;font-weight:600;transition:transform .3s;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.toast.show{transform:translateX(-50%) translateY(0)}.toast.success{background:var(--green)}.toast.error{background:var(--red)}
+@media(max-width:480px){.auth-card{padding:28px 18px}}
+</style>
+</head>
+<body>
+<div class="header"><div class="header-inner">
+  <a class="logo-area" href="/">
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect x="4" y="5" width="24" height="25" rx="4" fill="#2563EB"/><rect x="10" y="2" width="12" height="6" rx="3" fill="#1D4ED8" stroke="#2563EB" stroke-width="1"/><rect x="12" y="3" width="8" height="4" rx="2" fill="#93C5FD"/><rect x="8" y="12" width="10" height="2.5" rx="1.2" fill="#DBEAFE"/><rect x="8" y="17" width="12" height="2.5" rx="1.2" fill="#BFDBFE"/><rect x="8" y="22" width="8" height="2.5" rx="1.2" fill="#DBEAFE"/><circle cx="23" cy="23" r="6" fill="#10B981"/><path d="M20 23L22 25L26 21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="logo-text">이지보드 <small>EasyBoard</small></span>
+  </a>
+  <div class="header-links"><a href="/login">로그인</a></div>
+</div></div>
+
+<div class="main"><div class="auth-card">
+  <div class="card-header">
+    <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#DBEAFE"/></svg></div>
+    <div class="card-title">계정 찾기</div>
+    <div class="card-sub">가입 시 등록한 휴대폰 번호로 인증합니다</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tabId" onclick="switchTab('id')">👤 아이디 찾기</button>
+    <button class="tab-btn" id="tabPw" onclick="switchTab('pw')">🔒 비밀번호 재설정</button>
+  </div>
+  <div class="msg" id="msg"><span id="msgIcon"></span><span id="msgText"></span></div>
+
+  <div class="tab-panel active" id="panelId">
+    <div class="result-box" id="idResult"><div class="result-label">회원님의 아이디</div><div class="result-id" id="foundId"></div><div class="result-label" id="foundDate"></div></div>
+    <div id="idForm">
+      <div class="form-group">
+        <label class="form-label">휴대폰 번호 <span class="req">*</span></label>
+        <div class="verify-row"><input class="form-input" type="tel" id="idPhone" placeholder="010-0000-0000" maxlength="13"><button class="btn-verify" id="idSendBtn" onclick="sendFindCode('id')">인증요청</button></div>
+        <div class="form-hint">가입 시 등록한 번호로 인증해주세요.</div>
+      </div>
+      <div class="form-group" id="idCodeGroup" style="display:none">
+        <label class="form-label">인증번호 <span class="req">*</span></label>
+        <div class="verify-row"><input class="form-input" type="text" id="idCode" placeholder="6자리 인증번호" maxlength="6"><button class="btn-verify" onclick="verifyFind('id')">확인</button></div>
+        <div class="form-hint" id="idTimer" style="color:var(--amber)"></div>
+      </div>
+      <button class="btn-primary" id="findIdBtn" onclick="findId()" disabled>아이디 찾기</button>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panelPw">
+    <div id="pwStep1">
+      <div class="form-group"><label class="form-label">아이디 <span class="req">*</span></label><input class="form-input" type="text" id="pwUsername" placeholder="가입한 아이디"></div>
+      <div class="form-group">
+        <label class="form-label">휴대폰 번호 <span class="req">*</span></label>
+        <div class="verify-row"><input class="form-input" type="tel" id="pwPhone" placeholder="010-0000-0000" maxlength="13"><button class="btn-verify" id="pwSendBtn" onclick="sendFindCode('pw')">인증요청</button></div>
+        <div class="form-hint">가입 시 등록한 번호로 인증해주세요.</div>
+      </div>
+      <div class="form-group" id="pwCodeGroup" style="display:none">
+        <label class="form-label">인증번호 <span class="req">*</span></label>
+        <div class="verify-row"><input class="form-input" type="text" id="pwCode" placeholder="6자리 인증번호" maxlength="6"><button class="btn-verify" onclick="verifyFind('pw')">확인</button></div>
+        <div class="form-hint" id="pwTimer" style="color:var(--amber)"></div>
+      </div>
+      <button class="btn-primary" id="pwVerifyBtn" onclick="showPwReset()" disabled>비밀번호 변경</button>
+    </div>
+    <div class="pw-reset-form" id="pwStep2">
+      <div class="form-group"><label class="form-label">새 비밀번호 <span class="req">*</span></label><div class="pw-wrap"><input class="form-input" type="password" id="newPw" placeholder="8자 이상"><button class="pw-eye" type="button" onclick="togglePwEye('newPw',this)">👁</button></div></div>
+      <div class="form-group"><label class="form-label">새 비밀번호 확인 <span class="req">*</span></label><div class="pw-wrap"><input class="form-input" type="password" id="newPw2" placeholder="비밀번호를 다시 입력"><button class="pw-eye" type="button" onclick="togglePwEye('newPw2',this)">👁</button></div></div>
+      <button class="btn-primary" onclick="resetPassword()">비밀번호 변경</button>
+    </div>
+  </div>
+
+  <div class="back-link"><a href="/login">← 로그인으로 돌아가기</a></div>
+</div></div>
+
+<footer><strong>이지보드</strong> | 네이버 플레이스 키워드 분석 솔루션<br>© 2026 이지보드. All rights reserved.</footer>
+<div class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let idVerified=false,pwVerified=false,idTimerI=null,pwTimerI=null;
+function toggleTheme(){const h=document.documentElement,d=h.getAttribute('data-theme')==='dark';h.setAttribute('data-theme',d?'light':'dark');document.getElementById('themeToggle').textContent=d?'🌙':'☀️';localStorage.setItem('theme',d?'light':'dark')}
+(function(){const t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');document.getElementById('themeToggle').textContent='☀️'}})();
+function togglePwEye(id,btn){const i=document.getElementById(id);const p=i.type==='password';i.type=p?'text':'password';btn.textContent=p?'🙈':'👁'}
+function showToast(m,t='success'){const e=document.getElementById('toast');e.textContent=m;e.className='toast '+t;setTimeout(()=>e.classList.add('show'),10);setTimeout(()=>e.classList.remove('show'),3000)}
+function showMsg(m,t='error'){document.getElementById('msgIcon').textContent=t==='error'?'⚠️':'✅';document.getElementById('msgText').textContent=m;document.getElementById('msg').className='msg '+t+' show';setTimeout(()=>document.getElementById('msg').classList.remove('show'),4000)}
+
+function switchTab(tab){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.getElementById('tab'+(tab==='id'?'Id':'Pw')).classList.add('active');document.getElementById('panel'+(tab==='id'?'Id':'Pw')).classList.add('active')}
+
+document.querySelectorAll('input[type="tel"]').forEach(el=>{el.addEventListener('input',function(){let v=this.value.replace(/\D/g,'');if(v.length>11)v=v.slice(0,11);if(v.length>7)v=v.slice(0,3)+'-'+v.slice(3,7)+'-'+v.slice(7);else if(v.length>3)v=v.slice(0,3)+'-'+v.slice(3);this.value=v})});
+
+function startTimer(s,elId){const el=document.getElementById(elId);el.style.color='var(--amber)';return setInterval(()=>{const m=Math.floor(s/60),ss=s%60;el.textContent=`유효시간: ${m}:${String(ss).padStart(2,'0')}`;if(--s<0){clearInterval(idTimerI);clearInterval(pwTimerI);el.textContent='만료됨';el.style.color='var(--red)'}},1000)}
+
+async function sendFindCode(mode){
+  const ph=document.getElementById(mode==='id'?'idPhone':'pwPhone').value.replace(/-/g,'');
+  if(ph.length<10){showMsg('번호를 정확히 입력해주세요.');return}
+  if(mode==='pw'&&!document.getElementById('pwUsername').value.trim()){showMsg('아이디를 입력해주세요.');return}
+  const btn=document.getElementById(mode==='id'?'idSendBtn':'pwSendBtn');btn.disabled=true;
+  try{const r=await fetch('/api/auth/send-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:ph})});const d=await r.json();
+    if(d.success){document.getElementById(mode+'CodeGroup').style.display='block';showToast('인증번호: '+(d._devCode||'발송완료'));if(mode==='id')idTimerI=startTimer(180,'idTimer');else pwTimerI=startTimer(180,'pwTimer')}else showMsg(d.message);
+  }catch(e){showMsg('서버 연결 오류')}setTimeout(()=>btn.disabled=false,3000);
+}
+
+async function verifyFind(mode){
+  const ph=document.getElementById(mode==='id'?'idPhone':'pwPhone').value.replace(/-/g,''),code=document.getElementById(mode+'Code').value.trim();
+  if(code.length!==6){showMsg('6자리 인증번호를 입력해주세요.');return}
+  try{const r=await fetch('/api/auth/verify-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:ph,code})});const d=await r.json();
+    if(d.success){if(mode==='id'){idVerified=true;clearInterval(idTimerI);document.getElementById('idTimer').textContent='✅ 인증 완료';document.getElementById('idTimer').style.color='var(--green)';document.getElementById('findIdBtn').disabled=false}else{pwVerified=true;clearInterval(pwTimerI);document.getElementById('pwTimer').textContent='✅ 인증 완료';document.getElementById('pwTimer').style.color='var(--green)';document.getElementById('pwVerifyBtn').disabled=false}showToast('인증 완료!')}else showMsg(d.message);
+  }catch(e){showMsg('서버 연결 오류')}
+}
+
+async function findId(){
+  if(!idVerified){showMsg('인증을 먼저 완료해주세요.');return}
+  const ph=document.getElementById('idPhone').value.replace(/-/g,'');
+  try{const r=await fetch('/api/auth/find-id',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:ph})});const d=await r.json();
+    if(d.success){document.getElementById('foundId').textContent=d.username;document.getElementById('foundDate').textContent='가입일: '+d.createdAt;document.getElementById('idResult').classList.add('show');document.getElementById('idForm').style.display='none'}else showMsg(d.message);
+  }catch(e){showMsg('서버 연결 오류')}
+}
+
+function showPwReset(){if(!pwVerified){showMsg('인증을 먼저 완료해주세요.');return}document.getElementById('pwStep1').style.display='none';document.getElementById('pwStep2').classList.add('show')}
+
+async function resetPassword(){
+  const np=document.getElementById('newPw').value,np2=document.getElementById('newPw2').value;
+  if(!np||np.length<8){showMsg('비밀번호는 8자 이상');return}if(np!==np2){showMsg('비밀번호가 일치하지 않습니다.');return}
+  const u=document.getElementById('pwUsername').value.trim(),ph=document.getElementById('pwPhone').value.replace(/-/g,'');
+  try{const r=await fetch('/api/auth/reset-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,phone:ph,password:np})});const d=await r.json();
+    if(d.success){showToast('비밀번호 변경 완료!');setTimeout(()=>location.href='/login',1500)}else showMsg(d.message);
+  }catch(e){showMsg('서버 연결 오류')}
+}
+const params=new URLSearchParams(location.search);if(params.get('tab')==='pw')switchTab('pw');
+</script>
+</body></html>

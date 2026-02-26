@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='5' width='24' height='25' rx='4' fill='%232563EB'/%3E%3Crect x='12' y='3' width='8' height='4' rx='2' fill='%2393C5FD'/%3E%3Crect x='8' y='12' width='10' height='2.5' rx='1.2' fill='%23DBEAFE'/%3E%3Crect x='8' y='17' width='12' height='2.5' rx='1.2' fill='%23BFDBFE'/%3E%3Crect x='8' y='22' width='8' height='2.5' rx='1.2' fill='%23DBEAFE'/%3E%3Ccircle cx='23' cy='23' r='6' fill='%2310B981'/%3E%3Cpath d='M20 23L22 25L26 21' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>이지보드 EasyBoard — 플레이스 상위노출(Top 5) 키워드 정밀 추출기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0F172A;--navy2:#1E293B;--blue:#2563EB;--blue2:#3B82F6;--blue3:#60A5FA;--sky:#DBEAFE;--sky2:#EFF6FF;--slate:#334155;--gray:#64748B;--gray2:#94A3B8;--gray3:#CBD5E1;--gray4:#E2E8F0;--gray5:#F1F5F9;--gray6:#F8FAFC;--white:#FFFFFF;--green:#10B981;--green2:#059669;--red:#EF4444;--amber:#F59E0B;--violet:#8B5CF6;--font:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;--mono:'JetBrains Mono','Consolas',monospace;--shadow-sm:0 1px 2px rgba(15,23,42,.06);--shadow:0 1px 3px rgba(15,23,42,.08),0 1px 2px rgba(15,23,42,.04);--shadow-md:0 4px 6px -1px rgba(15,23,42,.08),0 2px 4px -2px rgba(15,23,42,.04);--shadow-lg:0 10px 15px -3px rgba(15,23,42,.08),0 4px 6px -4px rgba(15,23,42,.03);--radius:12px;--radius-sm:8px;--radius-xs:6px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--gray5);color:var(--slate);min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .3s ease,color .3s ease}
+.hdr{background:var(--white);border-bottom:1px solid var(--gray4);position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm)}
+.hi{max-width:1060px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:60px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--navy);font-weight:800;font-size:17px;letter-spacing:-.3px}
+.logo-sub{font-size:11px;font-weight:500;color:var(--gray);margin-left:2px}
+.hnav{display:flex;align-items:center;gap:12px}
+.hnav a{font-size:12px;font-weight:600;color:var(--gray);text-decoration:none;padding:6px 12px;border-radius:var(--radius-xs);transition:all .15s}
+.hnav a:hover{color:var(--blue);background:var(--sky2)}
+.snd-toggle{font-size:11px;padding:5px 10px;border-radius:20px;cursor:pointer;background:var(--gray5);color:var(--gray);font-weight:600;border:1px solid var(--gray4);transition:all .15s;user-select:none}
+.snd-toggle.on{background:var(--sky);color:var(--blue);border-color:var(--blue3)}
+.wrap{max-width:1060px;margin:0 auto;padding:28px 24px 60px}
+.hero{text-align:center;padding:40px 20px 36px;background:linear-gradient(135deg,var(--navy) 0%,#1e3a5f 50%,var(--navy2) 100%);border-radius:16px;margin-bottom:24px;position:relative;overflow:hidden;box-shadow:var(--shadow-lg)}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(37,99,235,.2) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(96,165,250,.1) 0%,transparent 50%);pointer-events:none}
+.hero *{position:relative;z-index:1}
+.hbadge{display:inline-block;padding:5px 14px;background:rgba(37,99,235,.2);border:1px solid rgba(96,165,250,.3);border-radius:20px;font-size:11px;font-weight:600;color:var(--blue3);margin-bottom:14px;letter-spacing:.3px}
+.hero h1{font-size:26px;font-weight:800;color:var(--white);line-height:1.35;letter-spacing:-.5px}
+.hero h1 .cut{background:linear-gradient(90deg,var(--blue3),#93c5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:13px;color:var(--gray2);margin-top:10px;font-weight:500}
+.card{background:var(--white);border:1px solid var(--gray4);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px}
+.ctitle{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--gray4);display:flex;align-items:center;gap:8px}
+.sinp{width:100%;padding:10px 14px;font-size:13px;border:1.5px solid var(--gray4);border-radius:var(--radius-sm);background:var(--gray6);color:var(--slate);font-family:var(--font);transition:border-color .2s,box-shadow .2s;outline:none;resize:vertical}
+.sinp:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(37,99,235,.1);background:var(--white)}
+.sinp::placeholder{color:var(--gray2);font-size:11px}
+textarea.sinp{line-height:1.6;font-size:12px}
+.ninp{padding:7px 12px;border:1.5px solid var(--gray4);border-radius:var(--radius-xs);background:var(--gray6);font-size:13px;font-family:var(--mono);color:var(--slate);outline:none;transition:border-color .2s}
+.ninp:focus{border-color:var(--blue2);background:var(--white)}
+.glabel{font-size:12px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.glabel .gcnt{font-weight:400;color:var(--gray);font-size:11px}
+.g1c{color:var(--blue)}.g2c{color:var(--green2)}.g3c{color:#D97706}.g4c{color:var(--violet)}
+.gobtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;background:linear-gradient(135deg,var(--blue) 0%,var(--blue2) 100%);color:white;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:700;font-family:var(--font);cursor:pointer;transition:all .2s;box-shadow:0 1px 3px rgba(37,99,235,.3)}
+.gobtn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.35)}
+.gobtn:active{transform:translateY(0)}
+.gobtn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-outline{background:var(--white);color:var(--slate);border:1.5px solid var(--gray4);box-shadow:var(--shadow-sm)}
+.btn-outline:hover{border-color:var(--blue2);color:var(--blue);background:var(--sky2);box-shadow:none}
+.btn-sm{padding:6px 14px;font-size:11px;font-weight:600;border-radius:var(--radius-xs)}
+.btn-danger{background:rgba(239,68,68,.06);color:var(--red);border:1px solid rgba(239,68,68,.2);box-shadow:none}
+.btn-danger:hover{background:rgba(239,68,68,.1);box-shadow:none}
+.sec{display:none}.sec.on{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.wbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 18px;background:var(--gray6);border:1px solid var(--gray4);border-radius:var(--radius-sm);margin-bottom:12px}
+.wbar-dark{background:var(--sky2);border-color:rgba(37,99,235,.12)}
+.pgcard{background:var(--white);border:1px solid var(--gray4);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+.pgtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.pglbl{font-size:13px;font-weight:600;color:var(--slate);display:flex;align-items:center;gap:6px}
+.pgct{display:flex;align-items:baseline;gap:4px}
+.pgct .n{font-size:28px;font-weight:800;color:var(--blue);font-family:var(--mono)}
+.pgct .s{font-size:12px;color:var(--gray);font-weight:500}
+.pbar{height:8px;background:var(--gray4);border-radius:99px;overflow:hidden;margin-bottom:10px}
+.pfill{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--blue3));border-radius:99px;transition:width .4s ease}
+.pnums{display:flex;justify-content:space-between;font-size:12px;color:var(--gray);font-family:var(--mono)}
+.crow{display:flex;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap}
+.bsm{padding:7px 16px;border:1.5px solid var(--gray4);border-radius:var(--radius-xs);background:var(--white);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s;color:var(--slate)}
+.bsm:hover{border-color:var(--blue2);color:var(--blue)}
+.bstop{color:var(--red);border-color:rgba(239,68,68,.25)}.bstop:hover{background:rgba(239,68,68,.04);border-color:var(--red)}
+.tbadge{font-size:11px;padding:4px 12px;border-radius:20px;background:var(--sky);color:var(--blue);font-weight:600}
+.bizc{margin-top:16px;padding:14px 16px;background:var(--gray6);border-radius:var(--radius-sm);display:none}
+.biznm{font-size:15px;font-weight:700;color:var(--navy)}.bizsub{font-size:11px;color:var(--gray);margin-top:3px}
+.btags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.btag{font-size:10px;padding:3px 8px;border-radius:4px;background:var(--sky2);color:var(--blue);border:1px solid rgba(37,99,235,.1)}
+.logbox{margin-top:14px;max-height:200px;overflow-y:auto;border:1px solid var(--gray4);border-radius:var(--radius-sm);background:var(--navy);padding:10px 12px}
+.lrow{display:flex;align-items:center;gap:8px;padding:2px 0;font-size:11px;font-family:var(--mono);color:var(--gray2)}
+.lrk{min-width:52px;font-weight:600;color:var(--gray3)}.lrk.h{color:var(--green)}
+.lkw{color:var(--gray3)}.lkw.h{color:var(--white);font-weight:600}
+.rhero{background:var(--white);border:1px solid var(--gray4);border-radius:var(--radius);padding:24px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow)}
+.rhl .big{font-size:42px;font-weight:800;color:var(--blue);font-family:var(--mono)}
+.rhl .sub{font-size:13px;color:var(--gray);font-weight:500;margin-top:2px}
+.rhs{display:flex;gap:20px}.rhsi{text-align:center}
+.rhsi .v{font-size:22px;font-weight:800;color:var(--navy);font-family:var(--mono)}
+.rhsi .l{font-size:11px;color:var(--gray);font-weight:500;margin-top:2px}
+.tdone{display:none;justify-content:center;align-items:center;gap:8px;padding:12px;background:linear-gradient(135deg,rgba(16,185,129,.06),rgba(5,150,105,.08));border:1px solid rgba(16,185,129,.2);border-radius:var(--radius-sm);color:var(--green2);font-size:14px;font-weight:700;margin-bottom:14px}
+.exbox{display:none;padding:16px 20px;background:var(--white);border:1px solid var(--gray4);border-radius:var(--radius-sm);margin-bottom:16px;justify-content:space-between;align-items:center;box-shadow:var(--shadow-sm)}
+.exbox.show{display:flex}
+.exinfo .sub{font-size:11px;color:var(--gray);margin-top:2px}
+.exspin{display:none;font-size:11px;color:var(--gray);align-items:center;gap:4px}
+.exbtn{padding:8px 18px;background:var(--green);color:white;border:none;border-radius:var(--radius-xs);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s;box-shadow:0 1px 3px rgba(16,185,129,.3)}
+.exbtn:hover{background:var(--green2);transform:translateY(-1px)}
+.rcard{background:var(--white);border:1px solid var(--gray4);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.rtbar{padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--gray4);background:var(--gray6);flex-wrap:wrap;gap:8px}
+.rtitle{font-size:14px;font-weight:700;color:var(--navy)}
+.tbtns{display:flex;gap:4px;align-items:center}
+.ftab{padding:5px 12px;border:1px solid var(--gray4);border-radius:20px;background:var(--white);font-size:11px;font-weight:600;color:var(--gray);cursor:pointer;font-family:var(--font);transition:all .15s}
+.ftab.act{background:var(--blue);color:white;border-color:var(--blue)}
+.ftab:hover:not(.act){border-color:var(--blue2);color:var(--blue)}
+.cabtn{padding:5px 12px;border:1px solid var(--gray4);border-radius:20px;background:var(--white);font-size:11px;font-weight:600;color:var(--gray);cursor:pointer;font-family:var(--font);transition:all .15s}
+.cabtn:hover{border-color:var(--blue2);color:var(--blue)}
+.tctrl{padding:8px 20px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--gray4);background:var(--white)}
+.tctrl-label{font-size:11px;color:var(--gray);font-weight:500}
+.tswitch{position:relative;width:34px;height:18px;display:inline-block}
+.tswitch input{opacity:0;width:0;height:0}
+.tslider{position:absolute;inset:0;background:var(--gray3);border-radius:99px;cursor:pointer;transition:.2s}
+.tslider::before{content:'';position:absolute;width:14px;height:14px;left:2px;bottom:2px;background:white;border-radius:50%;transition:.2s}
+.tswitch input:checked+.tslider{background:var(--blue)}
+.tswitch input:checked+.tslider::before{transform:translateX(16px)}
+.rchip{padding:4px 10px;border:1px solid var(--gray4);border-radius:4px;font-size:10px;font-weight:600;color:var(--gray);cursor:pointer;background:var(--white);font-family:var(--mono);transition:all .15s}
+.rchip.act{background:var(--navy);color:white;border-color:var(--navy)}
+.ktbl{width:100%;border-collapse:collapse}
+.ktbl th{padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--gray);background:var(--gray6);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--gray4)}
+.ktbl td{padding:8px 16px;border-bottom:1px solid var(--gray4);font-size:12px;color:var(--slate)}
+.ktbl tr:hover td{background:var(--sky2)}
+.rnb{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;font-size:12px;font-weight:700;font-family:var(--mono);background:var(--gray5);color:var(--gray)}
+.rnb.r1{background:linear-gradient(135deg,#FCD34D,#F59E0B);color:#78350F}
+.rnb.r2{background:var(--gray3);color:var(--navy2)}
+.rnb.r3{background:#FDBA74;color:#7C2D12}
+.rnb.r4{background:var(--sky);color:var(--blue)}
+.rnb.r5{background:var(--gray4);color:var(--slate)}
+.kworig{font-weight:500}
+.kwtag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;margin-left:6px;letter-spacing:.3px}
+.kwtag.new{background:var(--sky);color:var(--blue)}
+.kwtag.old{background:rgba(16,185,129,.1);color:var(--green2)}
+.cpbtn{padding:4px 10px;border:1px solid var(--gray4);border-radius:4px;background:var(--white);font-size:10px;font-weight:600;color:var(--gray);cursor:pointer;font-family:var(--font);transition:all .15s}
+.cpbtn:hover{border-color:var(--blue2);color:var(--blue)}
+.empty{display:none;text-align:center;padding:40px 20px;font-size:14px;color:var(--gray)}
+.errbox{display:none;padding:10px 14px;margin-top:10px;background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-radius:var(--radius-xs);color:var(--red);font-size:12px;font-weight:600}
+.shint{font-size:11px;color:var(--gray);margin-top:8px;text-align:center}
+.toast{position:fixed;bottom:-60px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:var(--radius-sm);background:var(--navy);color:white;font-size:13px;font-weight:600;z-index:9999;transition:bottom .3s ease;box-shadow:0 8px 30px rgba(15,23,42,.25)}
+.toast.show{bottom:28px}
+.spin{display:inline-block;animation:spinR 1s linear infinite}
+@keyframes spinR{to{transform:rotate(360deg)}}
+.faq{margin-top:28px;padding:24px;background:var(--white);border:1px solid var(--gray4);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.faqt{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:16px}
+.faqq{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.faqa{font-size:12px;color:var(--gray);line-height:1.6}
+.about{margin-bottom:20px;padding:24px;background:var(--white);border:1px solid var(--gray4);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.about-title{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.about-desc{font-size:13px;color:var(--slate);line-height:1.8;margin-bottom:16px}
+.about-desc b{color:var(--blue);font-weight:700}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.about-card{padding:14px;border-radius:10px;background:var(--gray6);border:1px solid var(--gray4)}
+.about-card-icon{font-size:20px;margin-bottom:6px}
+.about-card-tit{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.about-card-sub{font-size:11px;color:var(--gray);line-height:1.5}
+.about-highlight{margin-top:14px;padding:14px 16px;border-radius:10px;background:linear-gradient(135deg,rgba(37,99,235,.06),rgba(5,150,105,.06));border:1px solid rgba(37,99,235,.1);font-size:12px;color:var(--slate);line-height:1.7}
+.about-highlight b{color:var(--navy)}
+.modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(15,23,42,.5);backdrop-filter:blur(4px);display:none;justify-content:center;align-items:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--white);border-radius:16px;padding:32px;max-width:520px;width:90%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(15,23,42,.2);position:relative}
+.modal-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:8px;background:var(--gray5);border:none;cursor:pointer;font-size:16px;color:var(--gray);display:flex;align-items:center;justify-content:center;transition:all .15s}
+.modal-close:hover{background:var(--gray4);color:var(--navy)}
+.modal-title{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:20px}
+.modal-step{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--gray4)}
+.modal-step:last-child{border-bottom:none}
+.modal-num{min-width:28px;height:28px;border-radius:8px;background:var(--blue);color:white;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.modal-step-text{font-size:13px;color:var(--slate);line-height:1.6}
+.modal-step-text b{color:var(--navy);font-weight:700}
+@media(max-width:640px){.hi{padding:0 16px}.wrap{padding:16px 12px 40px}.hero{padding:28px 16px}.hero h1{font-size:20px}.card{padding:16px}.rhero{flex-direction:column;gap:16px;text-align:center}.rhs{justify-content:center}}
+/* ═══ Mode Tabs ═══ */
+.mode-tabs{display:flex;gap:0;margin-bottom:20px;border-radius:var(--radius);overflow:hidden;border:2px solid var(--gray4);background:var(--gray6)}
+.mode-tab{flex:1;padding:14px 20px;font-size:14px;font-weight:700;font-family:var(--font);color:var(--gray);background:transparent;border:none;cursor:pointer;transition:all .2s;text-align:center;position:relative}
+.mode-tab:first-child{border-right:1px solid var(--gray4)}
+.mode-tab.active{background:var(--white);color:var(--blue);box-shadow:var(--shadow)}
+.mode-tab:hover:not(.active){color:var(--slate);background:rgba(255,255,255,.5)}
+.mode-tab .mdesc{font-size:10px;font-weight:500;color:var(--gray2);margin-top:3px;display:block}
+.mode-tab.active .mdesc{color:var(--blue3)}
+/* ═══ Queue Table ═══ */
+.qtbl{width:100%;border-collapse:collapse;margin-top:12px}
+.qtbl th{padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--gray);background:var(--gray6);border-bottom:1px solid var(--gray4)}
+.qtbl td{padding:8px 12px;border-bottom:1px solid var(--gray4);font-size:12px;color:var(--slate)}
+.qtbl tr:hover td{background:var(--sky2)}
+.qdel{padding:3px 8px;border:1px solid rgba(239,68,68,.2);border-radius:4px;background:transparent;color:var(--red);font-size:10px;cursor:pointer;font-family:var(--font);font-weight:600}
+.qdel:hover{background:rgba(239,68,68,.06)}
+/* ═══ Batch Progress ═══ */
+.batch-bar{padding:16px 20px;background:linear-gradient(135deg,var(--navy),#1e3a5f);border-radius:var(--radius);margin-bottom:16px;color:white;display:none}
+.batch-bar.on{display:block;animation:fadeUp .3s ease}
+.batch-title{font-size:15px;font-weight:700;margin-bottom:8px}
+.batch-sub{font-size:12px;color:var(--gray2);display:flex;align-items:center;gap:8px}
+.batch-pbar{height:6px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden;margin-top:10px}
+.batch-pfill{height:100%;width:0;background:linear-gradient(90deg,#60A5FA,#3B82F6);border-radius:99px;transition:width .4s ease}
+.batch-results{margin-top:12px;max-height:200px;overflow-y:auto}
+.batch-ritem{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,.06);border-radius:6px;margin-bottom:4px;font-size:12px}
+.batch-ritem .biz{font-weight:600;color:white}.batch-ritem .cnt{color:var(--blue3);font-family:var(--mono)}
+
+/* ══════════════════════════════════════════
+   DARK MODE — Premium Redesign
+   ══════════════════════════════════════════ */
+[data-theme="dark"]{
+  --navy:#E0E4EA;--navy2:#C0C8D4;--slate:#B8BFC9;--gray:#7A8599;--gray2:#5A6370;--gray3:#404858;
+  --gray4:rgba(255,255,255,.08);--gray5:#0F0F1A;--gray6:#151520;
+  --white:#1C1C2E;--sky2:rgba(37,99,235,.06);--sky:rgba(37,99,235,.12);
+  --green2:#34D399;--red:#F87171;--amber:#FBBF24;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.3);--shadow:0 2px 6px rgba(0,0,0,.25);
+  --shadow-md:0 4px 10px rgba(0,0,0,.3);--shadow-lg:0 10px 20px rgba(0,0,0,.3);
+}
+/* body & header */
+[data-theme="dark"] body{background:#0C0C18;color:#C8CDD5}
+[data-theme="dark"] .hdr{background:#141422;border-color:rgba(255,255,255,.05);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+[data-theme="dark"] .logo{color:#E8ECF1}
+[data-theme="dark"] .logo-sub{color:#6B7280}
+[data-theme="dark"] .hnav a{color:#8B93A0}
+[data-theme="dark"] .hnav a:hover{background:rgba(96,165,250,.08);color:#93BBFD}
+[data-theme="dark"] .snd-toggle{background:#1A1A2C;border-color:rgba(255,255,255,.08);color:#6B7280}
+[data-theme="dark"] .snd-toggle.on{background:rgba(37,99,235,.12);color:#60A5FA;border-color:rgba(96,165,250,.25)}
+[data-theme="dark"] #userBadge{background:rgba(37,99,235,.12)!important;color:#60A5FA!important}
+[data-theme="dark"] #logoutBtn{color:#F87171!important}
+
+/* hero — 그라디언트 유지하면서 다크모드 강화 */
+[data-theme="dark"] .hero{background:linear-gradient(135deg,#0D1B3E 0%,#162550 50%,#0E1A35 100%);border:1px solid rgba(96,165,250,.08)}
+[data-theme="dark"] .hero::before{background:radial-gradient(ellipse at 30% 20%,rgba(37,99,235,.15) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(96,165,250,.08) 0%,transparent 50%)}
+[data-theme="dark"] .hbadge{background:rgba(37,99,235,.2);border-color:rgba(96,165,250,.2);color:#93BBFD}
+[data-theme="dark"] .hero h1{color:#F0F4F8}
+[data-theme="dark"] .hero-sub{color:#7A8599}
+
+/* 카드 계열 전체 */
+[data-theme="dark"] .card,
+[data-theme="dark"] .pgcard,
+[data-theme="dark"] .rcard,
+[data-theme="dark"] .rhero,
+[data-theme="dark"] .faq,
+[data-theme="dark"] .about,
+[data-theme="dark"] .exbox{background:#1C1C2E;border-color:rgba(255,255,255,.06)}
+[data-theme="dark"] .ctitle{color:#E0E4EA;border-color:rgba(255,255,255,.06)}
+
+/* 입력 필드 */
+[data-theme="dark"] .sinp,[data-theme="dark"] .ninp{background:#141422;border-color:rgba(255,255,255,.08);color:#D4D9E1}
+[data-theme="dark"] .sinp:focus,[data-theme="dark"] .ninp:focus{background:#1A1A2C;border-color:var(--blue2);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+[data-theme="dark"] .sinp::placeholder,[data-theme="dark"] .ninp::placeholder{color:#4A5060}
+
+/* 텍스트 컬러 */
+[data-theme="dark"] .glabel{color:#C0C6D0}
+[data-theme="dark"] .biznm{color:#E0E4EA}
+[data-theme="dark"] .bizsub{color:#6B7280}
+[data-theme="dark"] .pglbl{color:#A0A8B4}
+[data-theme="dark"] .pgct .n{color:#60A5FA}
+[data-theme="dark"] .pgct .s{color:#6B7280}
+[data-theme="dark"] .pnums{color:#5A6370}
+[data-theme="dark"] .rhl .big{color:#60A5FA}
+[data-theme="dark"] .rhl .sub{color:#6B7280}
+[data-theme="dark"] .rhsi .v{color:#E0E4EA}
+[data-theme="dark"] .rhsi .l{color:#6B7280}
+[data-theme="dark"] .rtitle{color:#E0E4EA}
+
+/* 프로그레스 바 */
+[data-theme="dark"] .pbar{background:rgba(255,255,255,.06)}
+
+/* 테이블 */
+[data-theme="dark"] .ktbl th,[data-theme="dark"] .qtbl th{background:#141422;color:#7A8599;border-color:rgba(255,255,255,.04)}
+[data-theme="dark"] .ktbl td,[data-theme="dark"] .qtbl td{color:#B8BFC9;border-color:rgba(255,255,255,.04)}
+[data-theme="dark"] .ktbl tr:hover td,[data-theme="dark"] .qtbl tr:hover td{background:rgba(37,99,235,.05)}
+[data-theme="dark"] .rtbar{background:#141422;border-color:rgba(255,255,255,.04)}
+[data-theme="dark"] .tctrl{background:#1C1C2E;border-color:rgba(255,255,255,.04)}
+
+/* 버튼·칩 */
+[data-theme="dark"] .bsm,[data-theme="dark"] .cpbtn{background:#1A1A2C;border-color:rgba(255,255,255,.08);color:#8B93A0}
+[data-theme="dark"] .bsm:hover,[data-theme="dark"] .cpbtn:hover{border-color:rgba(96,165,250,.3);color:#93BBFD;background:rgba(37,99,235,.06)}
+[data-theme="dark"] .ftab,[data-theme="dark"] .cabtn{background:#1A1A2C;border-color:rgba(255,255,255,.08);color:#8B93A0}
+[data-theme="dark"] .ftab:hover:not(.act),[data-theme="dark"] .cabtn:hover{border-color:rgba(96,165,250,.3);color:#93BBFD}
+[data-theme="dark"] .ftab.act{background:var(--blue);color:white;border-color:var(--blue)}
+[data-theme="dark"] .rchip{background:#1A1A2C;border-color:rgba(255,255,255,.08);color:#8B93A0}
+[data-theme="dark"] .rchip.act{background:var(--blue);color:white;border-color:var(--blue)}
+[data-theme="dark"] .btn-outline{background:#1A1A2C;color:#B8BFC9;border-color:rgba(255,255,255,.08)}
+[data-theme="dark"] .btn-outline:hover{border-color:rgba(96,165,250,.3);color:#93BBFD;background:rgba(37,99,235,.06)}
+[data-theme="dark"] .gobtn{box-shadow:0 2px 8px rgba(37,99,235,.4)}
+[data-theme="dark"] .btn-danger{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.15)}
+[data-theme="dark"] .bstop{border-color:rgba(239,68,68,.2)}
+[data-theme="dark"] .exbtn{box-shadow:0 2px 8px rgba(16,185,129,.3)}
+[data-theme="dark"] .qdel{border-color:rgba(239,68,68,.15);color:#F87171}
+
+/* 모드 탭 */
+[data-theme="dark"] .mode-tabs{background:#141422;border-color:rgba(255,255,255,.06)}
+[data-theme="dark"] .mode-tab{color:#6B7280}
+[data-theme="dark"] .mode-tab:first-child{border-color:rgba(255,255,255,.06)}
+[data-theme="dark"] .mode-tab.active{background:#1C1C2E;color:#60A5FA;box-shadow:none}
+[data-theme="dark"] .mode-tab:hover:not(.active){color:#A0A8B4;background:rgba(255,255,255,.02)}
+[data-theme="dark"] .mode-tab .mdesc{color:#4A5060}
+[data-theme="dark"] .mode-tab.active .mdesc{color:rgba(96,165,250,.6)}
+
+/* 기타 배경 영역 */
+[data-theme="dark"] .wbar{background:#141422;border-color:rgba(255,255,255,.05)}
+[data-theme="dark"] .wbar-dark{background:rgba(37,99,235,.06);border-color:rgba(37,99,235,.1)}
+[data-theme="dark"] .bizc{background:#141422}
+[data-theme="dark"] .btag{background:rgba(37,99,235,.1);color:#60A5FA;border-color:rgba(37,99,235,.15)}
+[data-theme="dark"] .tbadge{background:rgba(37,99,235,.12);color:#60A5FA}
+[data-theme="dark"] .errbox{background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.12);color:#F87171}
+[data-theme="dark"] .shint{color:#4A5060}
+[data-theme="dark"] .kworig{color:#D0D5DD}
+[data-theme="dark"] .kwtag.new{background:rgba(37,99,235,.12);color:#60A5FA}
+[data-theme="dark"] .kwtag.old{background:rgba(16,185,129,.1);color:#34D399}
+
+/* 배치 바 */
+[data-theme="dark"] .batch-bar{background:linear-gradient(135deg,#0D1B3E,#162550)}
+[data-theme="dark"] .batch-pbar{background:rgba(255,255,255,.08)}
+[data-theme="dark"] .batch-ritem{background:rgba(255,255,255,.04)}
+
+/* 로그 박스 (이미 어두움 유지) */
+[data-theme="dark"] .logbox{background:#0C0C18;border-color:rgba(255,255,255,.04)}
+
+/* about 섹션 */
+[data-theme="dark"] .about-title{color:#E0E4EA}
+[data-theme="dark"] .about-desc{color:#A0A8B4}
+[data-theme="dark"] .about-desc b{color:#60A5FA}
+[data-theme="dark"] .about-card{background:#141422;border-color:rgba(255,255,255,.05)}
+[data-theme="dark"] .about-card-tit{color:#D0D5DD}
+[data-theme="dark"] .about-card-sub{color:#7A8599}
+[data-theme="dark"] .about-highlight{background:rgba(37,99,235,.06);border-color:rgba(37,99,235,.1)}
+[data-theme="dark"] .about-highlight b{color:#93BBFD}
+
+/* ★ FAQ 섹션 — 인라인 스타일 오버라이드 ★ */
+[data-theme="dark"] .faqt{color:#E0E4EA!important}
+[data-theme="dark"] .faq table td{color:#B8BFC9}
+[data-theme="dark"] .faq table td[style*="sky2"],[data-theme="dark"] .faq table td[style*="EFF6FF"]{background:rgba(37,99,235,.06)!important}
+[data-theme="dark"] .faq table td[style*="gray6"],[data-theme="dark"] .faq table td[style*="FAFC"]{background:rgba(255,255,255,.03)!important}
+[data-theme="dark"] .faq table div[style*="color:var(--navy)"]{color:#D0D5DD!important}
+[data-theme="dark"] .faq table b[style*="color:var(--navy)"]{color:#C0C8D4!important}
+[data-theme="dark"] .faq table b[style*="color:var(--blue)"]{color:#60A5FA!important}
+[data-theme="dark"] .faq table b[style*="color:var(--green2)"]{color:#34D399!important}
+[data-theme="dark"] .faq table b[style*="rgba(37,99,235"]{background:rgba(96,165,250,.1)!important}
+
+/* 모달 */
+[data-theme="dark"] .modal-overlay{background:rgba(0,0,0,.6)}
+[data-theme="dark"] .modal-box{background:#1C1C2E;border:1px solid rgba(255,255,255,.06)}
+[data-theme="dark"] .modal-title{color:#E0E4EA}
+[data-theme="dark"] .modal-close{background:#141422;color:#7A8599}
+[data-theme="dark"] .modal-close:hover{background:#252540;color:#C0C8D4}
+[data-theme="dark"] .modal-step{border-color:rgba(255,255,255,.04)}
+[data-theme="dark"] .modal-step-text{color:#B8C2D0}
+[data-theme="dark"] .modal-step-text b{color:#E0E4EA}
+[data-theme="dark"] .modal-step-text b[style*="color:var(--blue)"]{color:#60A5FA!important}
+[data-theme="dark"] .modal-step-text b[style*="color:var(--navy)"]{color:#D0D8E4!important}
+[data-theme="dark"] .modal-step-text b[style*="color:#EF4444"]{color:#F87171!important}
+[data-theme="dark"] .modal-step-text b[style*="color:var(--green2)"]{color:#34D399!important}
+
+/* 토스트 */
+[data-theme="dark"] .toast{background:#2563EB;box-shadow:0 8px 24px rgba(37,99,235,.3)}
+
+/* 완료 배너 */
+[data-theme="dark"] .tdone{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.15);color:#34D399}
+
+/* 랭크 넘버 뱃지 */
+[data-theme="dark"] .rnb{background:rgba(255,255,255,.06);color:#6B7280}
+[data-theme="dark"] .rnb.r1{background:linear-gradient(135deg,#B8860B,#DAA520);color:#FFF8E1}
+[data-theme="dark"] .rnb.r4{background:rgba(37,99,235,.12);color:#60A5FA}
+[data-theme="dark"] .rnb.r5{background:rgba(255,255,255,.06);color:#8B93A0}
+
+/* 스크롤바 */
+[data-theme="dark"] ::-webkit-scrollbar{width:6px;height:6px}
+[data-theme="dark"] ::-webkit-scrollbar-track{background:transparent}
+[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.18)}
+
+/* ── 다크모드 토글 버튼 ── */
+.theme-toggle{position:fixed;bottom:24px;right:24px;width:48px;height:48px;border-radius:50%;border:1px solid var(--gray4);background:var(--white);color:var(--navy);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;box-shadow:0 4px 12px rgba(0,0,0,.1);transition:all .3s;z-index:998}
+.theme-toggle:hover{transform:scale(1.1);box-shadow:0 6px 20px rgba(0,0,0,.15)}
+[data-theme="dark"] .theme-toggle{background:#1C1C2E;color:#E0E4EA;border-color:rgba(255,255,255,.08);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hi">
+    <a class="logo" href="#">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <!-- 클립보드 본체 -->
+        <rect x="4" y="5" width="24" height="25" rx="4" fill="#2563EB"/>
+        <!-- 클립 -->
+        <rect x="10" y="2" width="12" height="6" rx="3" fill="#1D4ED8" stroke="#2563EB" stroke-width="1"/>
+        <rect x="12" y="3" width="8" height="4" rx="2" fill="#93C5FD"/>
+        <!-- 텍스트 라인 (키워드 리스트) -->
+        <rect x="8" y="12" width="10" height="2.5" rx="1.2" fill="#DBEAFE"/>
+        <rect x="8" y="17" width="12" height="2.5" rx="1.2" fill="#BFDBFE"/>
+        <rect x="8" y="22" width="8" height="2.5" rx="1.2" fill="#DBEAFE"/>
+        <!-- 체크마크 원 -->
+        <circle cx="23" cy="23" r="6" fill="#10B981"/>
+        <path d="M20 23L22 25L26 21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      이지보드 <span class="logo-sub">EasyBoard</span>
+    </a>
+    <nav class="hnav">
+      <div class="snd-toggle on" id="sndToggle" onclick="toggleSound()">🔔 알림음</div>
+      <a href="#" onclick="showHelp();return false;">사용 가이드</a>
+      <span id="userBadge" style="font-size:12px;font-weight:600;color:var(--blue);background:var(--sky);padding:4px 10px;border-radius:var(--radius-xs);display:none">👤</span>
+      <a href="#" id="logoutBtn" onclick="doLogout();return false;" style="color:var(--red);display:none">로그아웃</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+  <div class="hero">
+    <svg width="48" height="48" viewBox="0 0 32 32" fill="none" style="margin-bottom:14px">
+      <rect x="4" y="5" width="24" height="25" rx="4" fill="rgba(255,255,255,.15)"/>
+      <rect x="10" y="2" width="12" height="6" rx="3" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.2)" stroke-width="1"/>
+      <rect x="12" y="3" width="8" height="4" rx="2" fill="rgba(255,255,255,.3)"/>
+      <rect x="8" y="12" width="10" height="2.5" rx="1.2" fill="rgba(255,255,255,.25)"/>
+      <rect x="8" y="17" width="12" height="2.5" rx="1.2" fill="rgba(255,255,255,.35)"/>
+      <rect x="8" y="22" width="8" height="2.5" rx="1.2" fill="rgba(255,255,255,.25)"/>
+      <circle cx="23" cy="23" r="6" fill="rgba(16,185,129,.9)"/>
+      <path d="M20 23L22 25L26 21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="hbadge">플레이스 상위노출(Top 5) 키워드 정밀 추출기</div>
+    <h1>플레이스 상위 키워드를<br><span class="cut">정밀하게 추출</span>하세요</h1>
+    <div class="hero-sub">매일·매주 새로운 키워드로 교체하여 자연스러운 유입을 만드는 올인원 솔루션</div>
+  </div>
+
+  <!-- ═══ 서비스 소개 ═══ -->
+  <div class="about">
+    <div class="about-title">📌 이지보드는 이런 프로그램이에요</div>
+    <div class="about-desc">
+      같은 키워드로 리워드를 계속 접수하면, 네이버는 이를 <b>비정상 트래픽(작업)</b>으로 판단하여 순위 점수에 역효과를 줍니다.<br><br>
+      이지보드는 해당 업장이 <b>플레이스 5위 이내에 노출되는 키워드를 최대한 많이 발굴</b>하여, 유입 경로를 다양하게 분산시킵니다.
+      매일·매주 새로운 키워드로 교체하면 네이버가 <b>자연스러운 검색 유입</b>으로 인식하여 플레이스 순위 상승에 좋은 점수가 반영됩니다.
+    </div>
+    <div class="about-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="about-card">
+        <div class="about-card-icon">🚨</div>
+        <div class="about-card-tit">이게 문제입니다</div>
+        <div class="about-card-sub">하나의 키워드로 수백 건 유입이 몰리면 네이버가 작업으로 판단합니다. 동일 키워드 반복 접수는 순위 점수에 역효과를 줄 수 있어요.</div>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">🎯</div>
+        <div class="about-card-tit">이지보드의 해결</div>
+        <div class="about-card-sub">URL 하나만 입력하면 수천 개의 키워드 조합을 자동 생성하고, 15개 탭이 동시에 순위를 검증하여 5위 이내 키워드만 엑셀로 정리합니다.</div>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">📊</div>
+        <div class="about-card-tit">키워드 분산 효과</div>
+        <div class="about-card-sub">수백 개의 서로 다른 키워드로 유입을 분산하면, 네이버가 자연 검색 유입으로 인식 → 순위 점수에 긍정적 반영됩니다.</div>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">🔄</div>
+        <div class="about-card-tit">매주 신선한 키워드</div>
+        <div class="about-card-sub">블랙리스트 기능으로 이미 사용한 키워드를 자동 제외하고 새 키워드만 추출. 매번 신선한 키워드로 교체할 수 있어요.</div>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">👥</div>
+        <div class="about-card-tit">이런 분들을 위해</div>
+        <div class="about-card-sub">마케팅 대행사 · 리워드 실행사 · 대표님 · 업장 사장님 · SEO 마케터 · 프리랜서까지, 키워드 추출이 필요한 모든 분.</div>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">💰</div>
+        <div class="about-card-tit">완전 무료</div>
+        <div class="about-card-sub">기능 제한 없음, 추출 횟수 제한 없음, 숨겨진 결제 없음. 회원가입만 하면 모든 기능을 무제한 사용할 수 있습니다.</div>
+      </div>
+    </div>
+    <div class="about-highlight">
+      💡 <b>한줄 요약</b> — 같은 키워드 반복 접수는 역효과! 이지보드로 수백 개의 새로운 5위 이내 키워드를 발굴하여 자연스러운 유입을 만드세요.
+    </div>
+  </div>
+  <!-- ═══ Main Panel ═══ -->
+  <div id="manualPanel">
+  <div class="card">
+    <div class="ctitle">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="7.5" cy="7.5" r="5.5" stroke="#2563EB" stroke-width="2"/><path d="M12 12L16 16" stroke="#2563EB" stroke-width="2" stroke-linecap="round"/></svg>
+      키워드 그룹 조합 엔진
+    </div>
+    <div style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:12px;font-weight:600;color:var(--slate)">플레이스 URL</span>
+        <button class="gobtn btn-sm btn-outline" id="suggestBtn" onclick="suggestWords()">✦ 추천 단어 불러오기</button>
+      </div>
+      <input class="sinp" id="urlInput" placeholder="https://m.place.naver.com/place/1234567890">
+    </div>
+    <div id="bizInfoBar" style="display:none;padding:10px 14px;background:var(--sky2);border:1px solid rgba(37,99,235,.1);border-radius:var(--radius-sm);margin-bottom:14px;font-size:12px;color:var(--blue);font-weight:600"></div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
+      <div><div class="glabel g1c"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="3" fill="#2563EB" opacity=".2"/><circle cx="7" cy="7" r="1.5" fill="#2563EB"/></svg>그룹1 — 지역/위치 <span class="gcnt" id="g1cnt">(0)</span></div><textarea class="sinp" id="g1" rows="5" placeholder="키워드를 입력해 주세요&#10;-예시-&#10;홍대&#10;마포구&#10;연남동" oninput="updateGroupCounts()"></textarea></div>
+      <div><div class="glabel g2c"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2L12 7L7 12L2 7Z" fill="#059669" opacity=".2"/><circle cx="7" cy="7" r="1.5" fill="#059669"/></svg>그룹2 — 근접/수식 <span class="gcnt" id="g2cnt">(0)</span></div><textarea class="sinp" id="g2" rows="4" placeholder="키워드를 입력해 주세요&#10;-예시-&#10;근처&#10;인근&#10;주변" oninput="updateGroupCounts()"></textarea></div>
+      <div><div class="glabel g3c"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="3" y="3" width="8" height="8" rx="2" fill="#D97706" opacity=".2"/><circle cx="7" cy="7" r="1.5" fill="#D97706"/></svg>그룹3 — 메뉴/서비스 <span class="gcnt" id="g3cnt">(0)</span></div><textarea class="sinp" id="g3" rows="5" placeholder="키워드를 입력해 주세요&#10;-예시-&#10;소고기&#10;삼겹살&#10;파스타" oninput="updateGroupCounts()"></textarea></div>
+      <div><div class="glabel g4c"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polygon points="7,1 9,5 13,5.5 10,8.5 11,13 7,11 3,13 4,8.5 1,5.5 5,5" fill="#8B5CF6" opacity=".2"/><circle cx="7" cy="7" r="1.5" fill="#8B5CF6"/></svg>그룹4 — 의도/접미 <span class="gcnt" id="g4cnt">(0)</span></div><textarea class="sinp" id="g4" rows="4" placeholder="키워드를 입력해 주세요&#10;-예시-&#10;맛집&#10;추천&#10;점심" oninput="updateGroupCounts()"></textarea></div>
+    </div>
+    <div class="wbar" style="border-color:rgba(239,68,68,.12);background:rgba(239,68,68,.02)">
+      <button class="gobtn btn-sm btn-danger" onclick="document.getElementById('blacklistFile').click()">🚫 과거 추출 엑셀 첨부 (중복 제외)</button>
+      <input type="file" id="blacklistFile" accept=".xlsx,.xls" style="display:none" onchange="loadBlacklist(this)" multiple>
+      <span id="blacklistInfo" style="font-size:11px;color:var(--gray)">제외 등록: 0개</span>
+      <button onclick="excludedKeywords.clear();document.getElementById('blacklistInfo').textContent='제외 등록: 0개';showToast('블랙리스트 초기화')" style="font-size:10px;background:none;border:1px solid var(--gray4);border-radius:4px;padding:3px 8px;cursor:pointer;color:var(--gray);font-family:var(--font)">초기화</button>
+    </div>
+    <div class="wbar wbar-dark">
+      <span style="font-size:12px;font-weight:700;color:var(--blue)">⚡ 목표 조합 수</span>
+      <input class="ninp" id="comboTarget" type="number" min="100" max="999999" value="10000" style="width:80px">
+      <button class="gobtn btn-sm" id="genBtn" onclick="generateCombos()">조합 생성</button>
+      <span id="comboCount" style="font-size:12px;font-weight:700;color:var(--blue);font-family:var(--mono)"></span>
+    </div>
+    <div id="previewBox" style="display:none;max-height:150px;overflow-y:auto;padding:12px 16px;background:var(--gray6);border:1px solid var(--gray4);border-radius:var(--radius-sm);margin-bottom:12px;font-size:10px;font-family:var(--mono);color:var(--gray);line-height:1.8"></div>
+    <div class="wbar wbar-dark">
+      <span style="font-size:12px;font-weight:700;color:var(--slate)">🎯 우선 타겟</span>
+      <label style="font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:600;color:var(--blue)"><input type="radio" name="preferMap" value="new" checked style="accent-color:var(--blue)"> 🔵 신지도</label>
+      <label style="font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:600;color:var(--green2)"><input type="radio" name="preferMap" value="old" style="accent-color:var(--green)"> 🟢 구지도</label>
+      <span style="width:1px;height:16px;background:var(--gray4)"></span>
+      <span style="font-size:12px;font-weight:700;color:var(--slate)">목표</span>
+      <input class="ninp" id="targetInput" type="number" min="0" max="99999" value="500" style="width:90px">
+      <span style="font-size:11px;color:var(--gray)">개</span>
+      <span style="width:1px;height:16px;background:var(--gray4)"></span>
+      <span style="font-size:11px;font-weight:600;color:var(--slate)">📋</span>
+      <input class="ninp" id="perDayInput" type="number" min="1" max="9999" value="100" style="width:80px">
+      <span style="font-size:10px;color:var(--gray)">개/시트 ×</span>
+      <input class="ninp" id="daysInput" type="number" min="1" max="365" value="1" style="width:64px">
+      <span style="font-size:10px;color:var(--gray)">일</span>
+    </div>
+    <div style="display:flex;gap:8px;margin:14px 0;flex-wrap:wrap">
+      <button class="gobtn btn-sm btn-outline" onclick="saveSession()" style="flex:1;min-width:140px">💾 현재 상태 저장</button>
+      <button class="gobtn btn-sm btn-outline" onclick="document.getElementById('loadSessionFile').click()" style="flex:1;min-width:140px">📂 이어하기 (불러오기)</button>
+      <input type="file" id="loadSessionFile" accept=".json" style="display:none" onchange="loadSession(this)">
+    </div>
+    <div id="sessionStatus" style="display:none;padding:8px 14px;font-size:12px;font-weight:600;margin-bottom:10px;border-radius:var(--radius-xs)"></div>
+    <button class="gobtn" id="gobtn" onclick="startExtraction()" style="width:100%;padding:12px" disabled>▶ 단일 추출 시작</button>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="gobtn btn-outline" id="addQueueBtn" onclick="addToQueue()" style="flex:1;padding:10px" disabled>🛒 대기열에 추가</button>
+    </div>
+    <p class="shint" id="shint">먼저 [조합 생성]으로 키워드를 만든 후 추출을 시작하세요.</p>
+    <div class="errbox" id="errbx"></div>
+  </div>
+  <!-- ═══ Queue Table ═══ -->
+  <div class="card" id="queueCard" style="display:none">
+    <div class="ctitle">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="3" width="12" height="12" rx="2" stroke="#8B5CF6" stroke-width="2"/><path d="M7 9H11M9 7V11" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round"/></svg>
+      대기열 (<span id="queueCount">0</span>개)
+    </div>
+    <table class="qtbl" id="queueTable"><thead><tr><th>#</th><th>업장명</th><th>키워드 수</th><th>목표</th><th>우선</th><th>순서</th><th>삭제</th></tr></thead><tbody id="queueBody"></tbody></table>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="gobtn" id="startQueueBtn" onclick="startManualBatch()" style="flex:1;padding:12px;font-size:14px">⚡ 대기열 일괄 추출 시작</button>
+      <button class="gobtn btn-sm btn-danger" onclick="clearQueue()" style="padding:12px">🗑 초기화</button>
+    </div>
+  </div>
+  </div><!-- /manualPanel -->
+  <!-- ═══ Batch Progress Bar ═══ -->
+  <div class="batch-bar" id="batchBar">
+    <div class="batch-title" id="batchTitle">🏭 다중 업장 처리 중...</div>
+    <div class="batch-sub"><span id="batchStatus">준비 중...</span></div>
+    <div class="batch-pbar"><div class="batch-pfill" id="batchPfill"></div></div>
+    <div class="batch-results" id="batchResults"></div>
+  </div>
+  <div class="sec" id="secP"><div class="pgcard">
+    <div class="pgtop"><div class="pglbl" id="slbl"><span class="spin">◌</span>&nbsp;준비 중...</div><div class="pgct"><div class="n" id="fndN">0</div><div class="s">개 발견</div></div></div>
+    <div class="pbar"><div class="pfill" id="pfill"></div></div>
+    <div class="pnums"><span id="pnum">0개 검색</span><span id="ppct"></span></div>
+    <div id="etaWidget" style="text-align:center;font-size:12px;color:var(--gray);margin-top:6px;font-family:var(--mono)"></div>
+    <div id="ptimer" style="text-align:center;font-size:20px;font-weight:700;color:var(--blue);margin:6px 0;font-family:var(--mono)"></div>
+    <div class="crow" id="crow" style="display:none"><button class="bsm bpause" id="bpause" onclick="doPause()">⏸ 일시정지</button><button class="bsm bstop" onclick="doStop()">■ 중단</button><div class="tbadge" id="tbadge" style="display:none"></div></div>
+    <div class="bizc" id="bizc"><div class="biznm" id="biznm"></div><div class="bizsub" id="bizsub"></div><div class="btags" id="btags"></div></div>
+    <div class="logbox" id="logbox"></div>
+  </div></div>
+  <div class="sec" id="secR">
+    <div class="rhero"><div class="rhl"><div class="big" id="doneN">0</div><div class="sub">개의 5위 이내 키워드</div></div><div class="rhs"><div class="rhsi"><div class="v" id="stnew">0</div><div class="l">🔵 신지도</div></div><div class="rhsi"><div class="v" id="stold">0</div><div class="l">🟢 구지도</div></div><div class="rhsi"><div class="v" id="stchk">0</div><div class="l">총 검색</div></div></div></div>
+    <div class="tdone" id="tdone">🎯 목표 달성!</div>
+    <div class="exbox" id="exbox"><div class="exinfo"><div style="font-size:13px;font-weight:600">📊 <b id="extxt">엑셀</b></div><div class="sub" id="exsub"></div></div><div style="display:flex;align-items:center;gap:10px"><div class="exspin" id="exspin"><span class="spin">◌</span> 생성 중...</div><button class="exbtn" id="exbtn" onclick="downloadExcel()">📥 엑셀 다운로드</button></div></div>
+    <div class="rcard">
+      <div class="rtbar"><div class="rtitle">"<span id="biznmlbl"></span>" 상위 5위 키워드</div><div class="tbtns"><button class="ftab act" data-f="all" onclick="setFilter('all')">전체 <span id="cntall">0</span></button><button class="ftab" data-f="new" onclick="setFilter('new')">🔵신 <span id="cntnew">0</span></button><button class="ftab" data-f="old" onclick="setFilter('old')">🟢구 <span id="cntold">0</span></button><button class="cabtn" onclick="copyAll()">📋 복사</button></div></div>
+      <div class="tctrl"><span class="tctrl-label">자동스크롤</span><label class="tswitch"><input type="checkbox" id="autoScrollChk" checked><span class="tslider"></span></label><span style="width:1px;height:14px;background:var(--gray4);margin:0 4px"></span><button class="rchip act" data-r="0" onclick="setRankFilter(0)">전체</button><button class="rchip" data-r="1" onclick="setRankFilter(1)">1위</button><button class="rchip" data-r="2" onclick="setRankFilter(2)">2위</button><button class="rchip" data-r="3" onclick="setRankFilter(3)">3위</button><button class="rchip" data-r="4" onclick="setRankFilter(4)">4위</button><button class="rchip" data-r="5" onclick="setRankFilter(5)">5위</button></div>
+      <div style="max-height:600px;overflow-y:auto" id="tblWrap"><table class="ktbl"><thead><tr><th style="width:32px">No.</th><th>순위</th><th>키워드</th><th style="width:60px">복사</th></tr></thead><tbody id="ktbody"></tbody></table></div>
+      <div class="empty" id="emptyMsg">결과가 없습니다. 키워드 조합을 조정해 보세요.</div>
+    </div>
+  </div>
+  <div class="faq" style="margin-top:32px">
+    <div class="faqt" style="display:flex;align-items:center;gap:8px;padding-bottom:14px;border-bottom:2px solid var(--blue);margin-bottom:20px">💬 자주 묻는 질문<span style="font-size:11px;font-weight:500;color:var(--gray);margin-left:auto">FAQ</span></div>
+    <table style="width:100%;border-collapse:separate;border-spacing:0 10px">
+      <tr><td style="vertical-align:top;padding:12px 14px;background:var(--sky2);border-radius:10px 0 0 10px;font-size:13px;font-weight:700;color:var(--blue);white-space:nowrap;width:30px">Q</td><td style="padding:12px 14px;background:var(--sky2);border-radius:0 10px 10px 0"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px">왜 같은 키워드를 계속 쓰면 안 되나요?</div><div style="font-size:12px;color:var(--gray);line-height:1.75">동일 키워드로 수백 건의 유입이 한꺼번에 몰리면, 네이버는 이를 <b style="color:var(--navy)">비정상 트래픽(작업)</b>으로 판단합니다. 그 결과 순위 점수에 역효과가 날 수 있어요. 반면에 수백 개의 서로 다른 키워드로 유입을 분산하면, 네이버가 <b style="color:var(--blue)">자연 검색 유입</b>으로 인식하여 순위에 긍정적인 점수가 반영됩니다.</div></td></tr>
+      <tr><td style="vertical-align:top;padding:12px 14px;background:var(--gray6);border-radius:10px 0 0 10px;font-size:13px;font-weight:700;color:var(--blue);white-space:nowrap">Q</td><td style="padding:12px 14px;background:var(--gray6);border-radius:0 10px 10px 0"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px">기존 수작업과 뭐가 다른가요?</div><div style="font-size:12px;color:var(--gray);line-height:1.75">수작업은 키워드를 직접 떠올리고 → 네이버에 검색하고 → 순위를 눈으로 확인하고 → 엑셀에 타이핑하는 과정을 반복해야 합니다. 업장 하나에 30분 이상 걸리죠. 이지보드는 이 전체 과정을 <b style="color:var(--blue)">클릭 한 번</b>으로 자동 완료합니다.</div></td></tr>
+      <tr><td style="vertical-align:top;padding:12px 14px;background:var(--sky2);border-radius:10px 0 0 10px;font-size:13px;font-weight:700;color:var(--blue);white-space:nowrap">Q</td><td style="padding:12px 14px;background:var(--sky2);border-radius:0 10px 10px 0"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px">블랙리스트 기능이 뭔가요?</div><div style="font-size:12px;color:var(--gray);line-height:1.75">이전에 추출한 키워드 엑셀을 첨부하면, 이미 확보된 키워드를 <b style="color:var(--green2)">자동으로 제외</b>하고 새 키워드만 찾습니다. 같은 업장을 반복 추출할 때 중복 없이 매번 신선한 키워드만 발굴할 수 있어서, 매주 리워드 미션 키워드를 <b style="color:var(--navy)">신선하게 교체</b>할 수 있습니다.</div></td></tr>
+      <tr><td style="vertical-align:top;padding:12px 14px;background:var(--gray6);border-radius:10px 0 0 10px;font-size:13px;font-weight:700;color:var(--blue);white-space:nowrap">Q</td><td style="padding:12px 14px;background:var(--gray6);border-radius:0 10px 10px 0"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px">업무 시간이 아닐 때도 사용할 수 있나요?</div><div style="font-size:12px;color:var(--gray);line-height:1.75">네, <b style="color:var(--blue)">대기열 기능</b>을 활용하면 됩니다. 퇴근 전에 여러 업장을 대기열에 등록해두면, 컴퓨터가 켜져 있는 동안 순서대로 자동 추출합니다. 다음 날 출근하면 엑셀 파일이 준비되어 있어요.</div></td></tr>
+      <tr><td style="vertical-align:top;padding:12px 14px;background:var(--sky2);border-radius:10px 0 0 10px;font-size:13px;font-weight:700;color:var(--blue);white-space:nowrap">Q</td><td style="padding:12px 14px;background:var(--sky2);border-radius:0 10px 10px 0"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px">내 폰 순위와 프로그램 결과가 다른데요?</div><div style="font-size:12px;color:var(--gray);line-height:1.75">네이버는 내 검색 기록과 위치에 따라 <b style="color:var(--navy)">'개인화 결과'</b>를 보여줍니다. 그래서 내 폰에서 1위로 보여도 실제로는 아닐 수 있어요. 이지보드는 서버 기준의 <b style="color:var(--blue)">객관적인 표준 순위</b>를 제공하며, 다양한 사용자가 접속하는 리워드 유입에는 표준 순위가 더 정확한 기준입니다.</div></td></tr>
+      <tr><td style="vertical-align:top;padding:12px 14px;background:var(--gray6);border-radius:10px 0 0 10px;font-size:13px;font-weight:700;color:var(--blue);white-space:nowrap">Q</td><td style="padding:12px 14px;background:var(--gray6);border-radius:0 10px 10px 0"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px">🔵 신지도 / 🟢 구지도가 뭔가요?</div><div style="font-size:12px;color:var(--gray);line-height:1.75">네이버 검색 결과에 플레이스가 표시되는 두 가지 형태입니다. 현재는 <b style="color:var(--blue)">🔵 신지도 키워드 위주로 접수</b>하시는 분이 대부분입니다. 다만 🟢 구지도 키워드도 함께 섞으면 더 자연스럽다고 판단하여 활용하시는 경우도 있어요. 이지보드는 둘 다 자동 구분해서 표시합니다.</div></td></tr>
+      <tr><td style="vertical-align:top;padding:12px 14px;background:var(--sky2);border-radius:10px 0 0 10px;font-size:13px;font-weight:700;color:var(--blue);white-space:nowrap">Q</td><td style="padding:12px 14px;background:var(--sky2);border-radius:0 10px 10px 0"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px">분석 도중 멈추거나 리셋되는 이유는?</div><div style="font-size:12px;color:var(--gray);line-height:1.75">네이버의 일시적인 차단을 우회하기 위해 <b style="color:var(--navy)">브라우저 세션을 자동으로 세탁</b>하는 과정입니다. 잠시 기다리면 자동으로 이어서 진행되니 걱정하지 않으셔도 됩니다.</div></td></tr>
+      <tr><td style="vertical-align:top;padding:12px 14px;background:var(--gray6);border-radius:10px 0 0 10px;font-size:13px;font-weight:700;color:var(--blue);white-space:nowrap">Q</td><td style="padding:12px 14px;background:var(--gray6);border-radius:0 10px 10px 0"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px">대행사에서 여러 업장을 연속으로 작업할 수 있나요?</div><div style="font-size:12px;color:var(--gray);line-height:1.75"><b style="color:var(--blue)">대기열 기능</b>을 활용하세요. 여러 업장의 URL과 설정을 등록하면 순서대로 자동 추출됩니다. 목표 수량과 우선 타겟(신지도/구지도)도 업장별로 개별 설정할 수 있어 대행사·실행사의 <b style="color:var(--navy)">대량 작업에 최적화</b>되어 있습니다.</div></td></tr>
+      <tr><td style="vertical-align:top;padding:12px 14px;background:var(--sky2);border-radius:10px 0 0 10px;font-size:13px;font-weight:700;color:var(--blue);white-space:nowrap">Q</td><td style="padding:12px 14px;background:var(--sky2);border-radius:0 10px 10px 0"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px">정말 완전 무료인가요?</div><div style="font-size:12px;color:var(--gray);line-height:1.75">네, 100% 무료입니다. 기능 제한도 없고, 추출 횟수 제한도 없습니다. 숨겨진 결제나 유료 전환 같은 것 없이, 회원가입만 하면 <b style="color:var(--blue)">모든 기능을 무제한</b> 사용할 수 있습니다.</div></td></tr>
+    </table>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+/* ═══ Auth ═══ */
+async function doLogout(){
+  try{await fetch('/api/auth/logout',{method:'POST'});}catch(e){}
+  window.location.href='/login';
+}
+fetch('/api/auth/check').then(r=>r.json()).then(d=>{
+  if(d.loggedIn&&d.username){
+    const b=document.getElementById('userBadge');
+    b.textContent='👤 '+d.username;b.style.display='inline-block';
+    document.getElementById('logoutBtn').style.display='inline-block';
+  }
+}).catch(()=>{});
+
+/* ═══ Dark Mode ═══ */
+function toggleTheme(){
+  const h=document.documentElement;
+  const isDark=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',isDark?'light':'dark');
+  document.getElementById('themeToggle').textContent=isDark?'🌙':'☀️';
+  localStorage.setItem('theme',isDark?'light':'dark');
+}
+(function(){
+  const t=localStorage.getItem('theme');
+  if(t==='dark'){
+    document.documentElement.setAttribute('data-theme','dark');
+    const tgl=document.getElementById('themeToggle');
+    if(tgl) tgl.textContent='☀️';
+  }
+})();
+
+/* ═══ Sound ═══ */
+let soundOn=true,audioCtx=null;
+function playPing(){if(!soundOn)return;try{if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();const t=audioCtx.currentTime;
+// 1음: E6 (1318Hz) — 밝은 어택
+const o1=audioCtx.createOscillator(),g1=audioCtx.createGain();o1.connect(g1);g1.connect(audioCtx.destination);o1.type='sine';o1.frequency.setValueAtTime(1318,t);g1.gain.setValueAtTime(0.18,t);g1.gain.exponentialRampToValueAtTime(0.06,t+0.12);g1.gain.exponentialRampToValueAtTime(0.001,t+0.25);o1.start(t);o1.stop(t+0.25);
+// 2음: G6 (1568Hz) — 상승 마무리 (0.12초 후)
+const o2=audioCtx.createOscillator(),g2=audioCtx.createGain();o2.connect(g2);g2.connect(audioCtx.destination);o2.type='sine';o2.frequency.setValueAtTime(1568,t+0.12);g2.gain.setValueAtTime(0.001,t);g2.gain.linearRampToValueAtTime(0.2,t+0.14);g2.gain.exponentialRampToValueAtTime(0.001,t+0.45);o2.start(t+0.12);o2.stop(t+0.45);
+}catch(e){}}
+function toggleSound(){soundOn=!soundOn;const el=$('sndToggle');el.textContent=soundOn?'🔔 알림음':'🔕 알림음';el.classList.toggle('on',soundOn);}
+
+/* ═══ Util ═══ */
+const $=id=>document.getElementById(id);
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function show(id){$(id).classList.add('on');}function hide(id){$(id).classList.remove('on');}
+function setErr(m){const b=$('errbx');b.textContent=m;b.style.display=m?'block':'none';}
+function showToast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+function getPreferMap(){return document.querySelector('input[name="preferMap"]:checked')?.value||'new';}
+function getGroupWords(id){return($(id).value||'').split(/\r?\n/).map(s=>s.trim()).filter(s=>s.length>=1);}
+function updateGroupCounts(){['g1','g2','g3','g4'].forEach(id=>{$(id+'cnt').textContent='('+getGroupWords(id).length+')';});}
+
+/* ═══ ETA ═══ */
+let etaHistory=[];
+function updateETA(checked,found){
+  const tgt=parseInt($('targetInput').value)||0;if(!tgt)return;
+  etaHistory.push({t:Date.now(),f:found});if(etaHistory.length>20)etaHistory.shift();if(etaHistory.length<3)return;
+  const o=etaHistory[0],n=etaHistory[etaHistory.length-1],dt=(n.t-o.t)/1000,df=n.f-o.f;
+  if(dt<=0||df<=0){$('etaWidget').textContent='';return;}
+  const rpm=(df/dt)*60,remain=tgt-found;
+  if(remain<=0){$('etaWidget').textContent='🎯 목표 달성!';return;}
+  const es=remain/(rpm/60),em=Math.floor(es/60),s=Math.floor(es%60);
+  $('etaWidget').textContent=em>60?`⏳ ~${Math.floor(em/60)}h ${em%60}m · ${rpm.toFixed(1)} RPM`:`⏳ ~${em}m ${s}s · ${rpm.toFixed(1)} RPM`;
+}
+
+/* ═══ Core State ═══ */
+let top5Data=[],curFilter='all',rankFilter=0,lastInfo={},targetNum=0;
+let generatedKeywords=[],remainingKeywords=[];
+let extractionDone=false;
+const excludedKeywords=new Set();
+
+/* ═══ 🚫 블랙리스트 (과거 엑셀 첨부) ═══ */
+function loadBlacklist(input){
+  const files=input.files;if(!files.length)return;
+  let loaded=0;
+  Array.from(files).forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=function(e){
+      try{
+        const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+        wb.SheetNames.forEach(sn=>{
+          if(sn==='SessionData')return;
+          const rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1});
+          rows.forEach((row,idx)=>{
+            if(idx===0)return;
+            // 엑셀 구조: [발견순서, 신지도키워드, 순위, 발견순서, 구지도키워드, 순위]
+            const a=(row[1]||'').toString().trim();
+            const c=(row[4]||'').toString().trim();
+            if(a&&a.length>=2)excludedKeywords.add(a);
+            if(c&&c.length>=2)excludedKeywords.add(c);
+          });
+        });
+      }catch(err){showToast('❌ 엑셀 파싱 오류: '+err.message);}
+      loaded++;
+      if(loaded===files.length){
+        $('blacklistInfo').textContent=`🚫 ${excludedKeywords.size.toLocaleString()}개의 과거 키워드가 제외 등록되었습니다.`;
+        $('blacklistInfo').style.color='var(--red)';$('blacklistInfo').style.fontWeight='700';
+        showToast(`🚫 블랙리스트 ${excludedKeywords.size.toLocaleString()}개 등록 완료!`);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  });
+  input.value='';
+}
+
+/* ═══ 🔮 추천 단어 ═══ */
+async function suggestWords(){
+  const url=($('urlInput').value||'').trim();
+  if(!url||url.length<10){setErr('URL을 먼저 입력해주세요');return;}
+  const btn=$('suggestBtn');btn.disabled=true;btn.textContent='🔄 크롤링 중...';setErr('');
+  try{
+    const res=await fetch('/api/suggest-words',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({placeUrl:url})});
+    if(!res.ok)throw new Error((await res.json()).error||'서버 오류');
+    const data=await res.json();
+    lastInfo=data.info||{};
+    $('bizInfoBar').textContent=`${data.info.name} | ${data.info.category} | ${data.info.address}`;
+    $('bizInfoBar').style.display='block';
+    ['g1','g2','g3','g4'].forEach((id,i)=>{
+      const key=['group1','group2','group3','group4'][i];
+      const existing=new Set(getGroupWords(id));
+      const nw=(data[key]||[]).filter(w=>!existing.has(w));
+      const el=$(id),cur=el.value.trim();
+      el.value=(cur?cur+'\n':'')+nw.join('\n');
+    });
+    updateGroupCounts();
+    showToast(`✅ ${data.info.name} — 추천 단어 채움 완료!`);
+  }catch(e){setErr('크롤링 오류: '+e.message);}
+  finally{btn.disabled=false;btn.textContent='🔮 추천 단어 불러오기';}
+}
+
+/* ═══ ⚡ 조합 생성 (블랙리스트 제외) ═══ */
+function generateCombos(){
+  const g1=getGroupWords('g1'),g2=getGroupWords('g2'),g3=getGroupWords('g3'),g4=getGroupWords('g4');
+  if(!g1.length&&!g3.length){setErr('최소한 그룹1(지역) 또는 그룹3(메뉴)에 단어를 입력해주세요');return;}
+  setErr('');
+  const maxTarget=parseInt($('comboTarget').value)||10000;
+  const combos=new Set();
+
+  // ★ 정방향 순차 조합만 허용 (1→2→3→4 순서 강제) ★
+  // 4그룹 전체 (1+2+3+4)
+  g1.forEach(a=>g2.forEach(b=>g3.forEach(c=>g4.forEach(d=>{
+    combos.add(a+' '+b+' '+c+' '+d);
+    combos.add(a+b+c+d);
+  }))));
+  // 3그룹 조합 (순서 유지)
+  g1.forEach(a=>g2.forEach(b=>g3.forEach(c=>{combos.add(a+' '+b+' '+c);combos.add(a+b+c);})));
+  g1.forEach(a=>g2.forEach(b=>g4.forEach(c=>combos.add(a+' '+b+' '+c))));
+  g1.forEach(a=>g3.forEach(b=>g4.forEach(c=>{combos.add(a+' '+b+' '+c);combos.add(a+b+' '+c);})));
+  g2.forEach(a=>g3.forEach(b=>g4.forEach(c=>combos.add(a+' '+b+' '+c))));
+  // 2그룹 조합 (순서 유지)
+  g1.forEach(a=>g2.forEach(b=>combos.add(a+' '+b)));
+  g1.forEach(a=>g3.forEach(b=>{combos.add(a+' '+b);combos.add(a+b);}));
+  g1.forEach(a=>g4.forEach(b=>{combos.add(a+' '+b);combos.add(a+b);}));
+  g2.forEach(a=>g3.forEach(b=>combos.add(a+' '+b)));
+  g2.forEach(a=>g4.forEach(b=>combos.add(a+' '+b)));
+  g3.forEach(a=>g4.forEach(b=>{combos.add(a+' '+b);combos.add(a+b);}));
+  // 단독 (그룹3 메뉴만)
+  g3.forEach(a=>combos.add(a));
+
+  // ★ 블랙리스트 제외 ★
+  let arr=[...combos].filter(k=>k.trim().length>=2&&!excludedKeywords.has(k.trim()));
+  // Fisher-Yates shuffle
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  // 목표 수량 cut
+  if(arr.length>maxTarget)arr=arr.slice(0,maxTarget);
+
+  generatedKeywords=arr;remainingKeywords=[...arr];
+  const excluded=combos.size-arr.length;
+  $('comboCount').textContent=`총 ${arr.length.toLocaleString()}개 생성`+(excluded>0?` (${excluded.toLocaleString()}개 제외됨)`:'');
+  const preview=arr.slice(0,80).map(k=>`<span style="display:inline-block;margin:2px 3px;padding:2px 6px;background:var(--sky2);border:1px solid var(--gray4);border-radius:4px;font-size:9px">${esc(k)}</span>`).join('');
+  $('previewBox').innerHTML=preview+(arr.length>80?`<div style="margin-top:6px;color:var(--gray)">... 외 ${(arr.length-80).toLocaleString()}개</div>`:'');
+  $('previewBox').style.display='block';
+  $('gobtn').disabled=false;
+  $('addQueueBtn').disabled=false;
+  $('shint').textContent=`✅ ${arr.length.toLocaleString()}개 키워드 준비 완료!`;
+  showToast(`⚡ ${arr.length.toLocaleString()}개 조합 생성!`);
+}
+
+/* ═══ 💾 세션 저장 (JSON 다운로드) ═══ */
+function saveSession(){
+  const data={
+    url:$('urlInput').value.trim(),
+    groups:{g1:$('g1').value,g2:$('g2').value,g3:$('g3').value,g4:$('g4').value},
+    remaining:remainingKeywords,
+    excluded:[...excludedKeywords],
+    top5:top5Data,
+    preferMap:getPreferMap(),
+    targetCount:parseInt($('targetInput').value)||0,
+    comboTarget:parseInt($('comboTarget').value)||10000,
+    perDay:parseInt($('perDayInput').value)||100,
+    days:parseInt($('daysInput').value)||1,
+    bizName:lastInfo.name||'',
+    checkedCount:window._lastChecked||0,
+    savedAt:new Date().toISOString()
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`${lastInfo.name||'이지보드'} 추출중.json`;
+  document.body.appendChild(a);a.click();a.remove();
+  showToast('💾 세션 저장 완료! 나중에 [이어하기]로 불러오세요.');
+}
+
+/* ═══ 📂 세션 불러오기 (JSON) ═══ */
+function loadSession(input){
+  const file=input.files[0];if(!file)return;
+  const st=$('sessionStatus');st.style.display='block';st.style.color='var(--slate)';st.style.background='var(--sky2)';st.textContent='⏳ 불러오는 중...';
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const data=JSON.parse(e.target.result);
+      if(data.url)$('urlInput').value=data.url;
+      if(data.groups){
+        if(data.groups.g1)$('g1').value=data.groups.g1;
+        if(data.groups.g2)$('g2').value=data.groups.g2;
+        if(data.groups.g3)$('g3').value=data.groups.g3;
+        if(data.groups.g4)$('g4').value=data.groups.g4;
+        updateGroupCounts();
+      }
+      if(data.preferMap){const r=document.querySelector(`input[name="preferMap"][value="${data.preferMap}"]`);if(r)r.checked=true;}
+      if(data.targetCount)$('targetInput').value=data.targetCount;
+      if(data.comboTarget)$('comboTarget').value=data.comboTarget;
+      if(data.perDay)$('perDayInput').value=data.perDay;
+      if(data.days)$('daysInput').value=data.days;
+      if(data.bizName)lastInfo.name=data.bizName;
+      // 대기열 복원 — ★ generatedKeywords는 건드리지 않음! ★
+      if(data.remaining&&data.remaining.length>0){
+        remainingKeywords=data.remaining;
+        // ★ _isResuming 플래그: startExtraction에서 초기화 방지 ★
+        window._isResuming=true;
+        $('comboCount').textContent=`대기열 ${data.remaining.length.toLocaleString()}개 복원됨`;
+        $('gobtn').disabled=false;
+        $('addQueueBtn').disabled=false;
+        $('shint').textContent=`✅ ${data.remaining.length.toLocaleString()}개 남은 키워드 복원! [추출 시작]을 누르세요.`;
+      }
+      // 블랙리스트 복원
+      if(data.excluded&&data.excluded.length>0){
+        data.excluded.forEach(k=>excludedKeywords.add(k));
+        $('blacklistInfo').textContent=`🚫 ${excludedKeywords.size.toLocaleString()}개 제외 등록됨 (복원)`;
+        $('blacklistInfo').style.color='var(--red)';$('blacklistInfo').style.fontWeight='700';
+      }
+      // 결과 복원
+      if(data.top5&&data.top5.length>0){
+        top5Data=data.top5;renderTable(top5Data);updateExcelBox();show('secR');
+        $('doneN').textContent=top5Data.length;
+        $('stnew').textContent=top5Data.filter(x=>x.mapType==='new').length;
+        $('stold').textContent=top5Data.filter(x=>x.mapType==='old').length;
+      }
+      if(data.checkedCount)window._lastChecked=data.checkedCount;
+      const q=data.remaining?.length||0;
+      st.textContent=`✅ 복원 완료! 결과 ${data.top5?.length||0}개 + 대기열 ${q.toLocaleString()}개 + 블랙리스트 ${excludedKeywords.size}개`;
+      st.style.color='var(--blue)';
+      showToast(`📂 세션 100% 복원 완료!`);
+    }catch(err){st.textContent='❌ JSON 파싱 오류: '+err.message;st.style.color='var(--red)';}
+  };
+  reader.readAsText(file);input.value='';
+}
+
+/* ═══ ▶ 추출 시작 ═══ */
+function startExtraction(){
+  const kws=remainingKeywords.length>0?remainingKeywords:generatedKeywords;
+  if(!kws.length){setErr('먼저 [조합 생성하기]를 실행해주세요');return;}
+  const url=($('urlInput').value||'').trim();
+  if(!url||url.length<10){setErr('URL을 입력해주세요');return;}
+  targetNum=parseInt($('targetInput').value)||0;setErr('');
+  // ★ 이어하기인지 새 시작인지 판별 ★
+  const isResume=!!window._isResuming;
+  window._isResuming=false;
+  if(!isResume){top5Data=[];lastInfo.placeId=undefined;etaHistory=[];extractionDone=false;}
+  $('gobtn').disabled=true;$('logbox').innerHTML='';
+  $('emptyMsg').style.display='none';$('bizc').style.display='none';
+  $('pfill').style.width='0';$('pnum').textContent='0/'+kws.length;$('ppct').textContent='';
+  $('fndN').textContent=top5Data.length||'0';$('tdone').style.display='none';$('exbox').classList.remove('show');
+  if(!isResume){['cntall','cntnew','cntold'].forEach(id=>$(id).textContent='0');curFilter='all';rankFilter=0;
+    document.querySelectorAll('.ftab').forEach(t=>t.classList.toggle('act',t.dataset.f==='all'));
+    document.querySelectorAll('.rchip').forEach(c=>c.classList.toggle('act',parseInt(c.dataset.r)===0));
+    hide('secR');
+  }
+  show('secP');
+  $('tbadge').textContent=`🎯 ${kws.length.toLocaleString()}개 · ${getPreferMap()==='new'?'🔵신':'🟢구'} ${targetNum}개 목표`;
+  $('tbadge').style.display='block';
+  if(window._timerInt)clearInterval(window._timerInt);
+  window._searchStart=Date.now();
+  window._timerInt=setInterval(()=>{const sec=Math.floor((Date.now()-window._searchStart)/1000);const m=Math.floor(sec/60),s=sec%60;$('ptimer').textContent=`⏱ ${m}분 ${String(s).padStart(2,'0')}초`;},1000);
+  // ★ 이어하기: 기존 top5 서버에 전달 ★
+  const body={placeUrl:url,keywords:kws,preferMap:getPreferMap(),targetCount:targetNum};
+  if(isResume&&top5Data.length>0)body.existingTop5=top5Data;
+  fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(body)
+  }).then(async res=>{
+    const reader=res.body.getReader(),dec=new TextDecoder();let buf='';
+    while(true){const{done,value}=await reader.read();if(done)break;buf+=dec.decode(value,{stream:true});const lines=buf.split('\n');buf=lines.pop();for(const line of lines){if(!line.startsWith('data: '))continue;try{handleEvent(JSON.parse(line.slice(6)));}catch(e){}}}
+  }).catch(e=>{setErr('연결 오류: '+e.message);$('gobtn').disabled=false;});
+}
+
+/* ═══ 이벤트 ═══ */
+function handleEvent(d){
+  if(d.phase==='crawling'){$('slbl').innerHTML='<span class="spin">◌</span>&nbsp;업장 정보 수집 중...';$('crow').style.display='flex';}
+  else if(d.phase==='crawled'){
+    const i=d.info||{};lastInfo=i;lastInfo.placeId=d.placeId||'';
+    $('biznm').textContent=i.name||'';$('bizsub').textContent=[i.category,i.address].filter(Boolean).join(' · ');
+    $('biznmlbl').textContent=i.name||'';
+    const bt=$('btags');bt.innerHTML='';[...(i.menus||[]).slice(0,30),...(i.reviewTags||[]).slice(0,6)].forEach(t=>{const s=document.createElement('span');s.className='btag';s.textContent=t;bt.appendChild(s);});
+    $('bizc').style.display='block';
+  }
+  else if(d.phase==='generated'){$('slbl').innerHTML=`<span class="spin">◌</span>&nbsp;<b style="color:var(--blue)">${esc(d.catLabel||'')}</b> 검색 중...`;}
+  else if(d.phase==='filtered'){
+    // ★ 지역필터로 스킵된 키워드를 remaining에서 제거 ★
+    if(d.skippedKeywords&&d.skippedKeywords.length>0){
+      const skipSet=new Set(d.skippedKeywords);
+      remainingKeywords=remainingKeywords.filter(kw=>!skipSet.has(kw));
+    }
+    if(d.filteredCount)$('pnum').textContent=`0/${d.filteredCount.toLocaleString()}`;
+  }
+  else if(d.phase==='progress'){
+    window._lastChecked=d.checked||0;
+    $('pnum').textContent=d.totalKeywords?`${(d.checked||0).toLocaleString()}/${d.totalKeywords.toLocaleString()}`:`${(d.checked||0).toLocaleString()}개`;
+    const nH=d.newHits||0,oH=d.oldHits||0,tot=d.top5Count||0;
+    const prefH=getPreferMap()==='new'?nH:oH;
+    const pct=targetNum>0?Math.min(Math.round(prefH/targetNum*100),99):0;
+    $('pfill').style.width=pct+'%';$('ppct').textContent=`🔵${nH} 🟢${oH} = ${tot}`;
+    $('fndN').textContent=tot;updateETA(d.checked||0,tot);
+    $('slbl').innerHTML=d.paused?'⏸ 일시정지됨':'<span class="spin">◌</span>&nbsp;검색 중';
+    addLog(d.keyword,d.rank,d.mapType);
+    if(d.rank&&d.rank<=5){top5Data.push({keyword:d.keyword,rank:d.rank,mapType:d.mapType,foundOrder:top5Data.length+1});playPing();renderTable(top5Data);updateExcelBox();show('secR');}
+    // ★ 검색 완료된 키워드를 remaining에서 정확히 제거 ★
+    if(d.keyword){const idx=remainingKeywords.indexOf(d.keyword);if(idx!==-1)remainingKeywords.splice(idx,1);}
+    $('bpause').textContent=d.paused?'▶ 재개':'⏸ 일시정지';
+    if(d.targetReached)$('tdone').style.display='flex';
+  }
+  else if(d.phase==='done'){
+    extractionDone=true;top5Data=d.top5||[];remainingKeywords=d.remaining||[];
+    renderTable(top5Data);updateExcelBox();
+    $('doneN').textContent=top5Data.length;$('stnew').textContent=top5Data.filter(x=>x.mapType==='new').length;
+    $('stold').textContent=top5Data.filter(x=>x.mapType==='old').length;$('stchk').textContent=(d.total||0).toLocaleString();
+    $('slbl').innerHTML=`✅ 완료 — <b style="color:var(--blue)">${top5Data.length}개</b>`;
+    $('pfill').style.width='100%';$('etaWidget').textContent='';$('gobtn').disabled=false;$('crow').style.display='none';
+    if(window._timerInt){clearInterval(window._timerInt);window._timerInt=null;}
+    if(!top5Data.length)$('emptyMsg').style.display='block';
+    if(d.targetReached)$('tdone').style.display='flex';
+    show('secR');
+  }
+  else if(d.phase==='error'){setErr('오류: '+(d.msg||''));$('slbl').textContent='❌ 오류';$('gobtn').disabled=false;if(window._timerInt){clearInterval(window._timerInt);window._timerInt=null;}}
+}
+
+function addLog(kw,rank,mt){const lb=$('logbox'),div=document.createElement('div');div.className='lrow';const h=rank&&rank<=5;div.innerHTML=`<div class="lrk ${h?'h':''}">${h?'✅'+rank+'위':'—'}</div><div style="font-size:10px">${h?(mt==='new'?'🔵':'🟢'):''}</div><div class="lkw ${h?'h':''}">${esc(kw)}</div>`;lb.appendChild(div);lb.scrollTop=lb.scrollHeight;}
+
+function renderTable(list){
+  const sorted=[...list].sort((a,b)=>(a.foundOrder||999)-(b.foundOrder||999));
+  let f=curFilter==='all'?sorted:sorted.filter(x=>x.mapType===curFilter);
+  if(rankFilter>0)f=f.filter(x=>x.rank===rankFilter);
+  $('cntall').textContent=sorted.length;$('cntnew').textContent=sorted.filter(x=>x.mapType==='new').length;
+  $('cntold').textContent=sorted.filter(x=>x.mapType==='old').length;
+  $('doneN').textContent=sorted.length;$('stnew').textContent=sorted.filter(x=>x.mapType==='new').length;$('stold').textContent=sorted.filter(x=>x.mapType==='old').length;
+  const rc=['','r1','r2','r3','r4','r5'];
+  $('ktbody').innerHTML=f.map(item=>{const r=Math.min(item.rank,5);const tag=item.mapType==='new'?'<span class="kwtag new">신</span>':'<span class="kwtag old">구</span>';const k=esc(item.keyword).replace(/'/g,'&#39;');return`<tr><td style="text-align:center;font-size:11px;color:var(--gray);font-family:var(--mono)">${item.foundOrder||''}</td><td><span class="rnb ${rc[r]}">${item.rank}</span></td><td><span class="kworig">${esc(item.keyword)}</span>${tag}</td><td><button class="cpbtn" onclick="navigator.clipboard.writeText('${k}').then(()=>showToast('✅ 복사!'))">복사</button></td></tr>`;}).join('');
+  if($('autoScrollChk').checked){const w=$('tblWrap');if(w)w.scrollTop=w.scrollHeight;}
+}
+
+function setFilter(f){curFilter=f;document.querySelectorAll('.ftab').forEach(t=>t.classList.toggle('act',t.dataset.f===f));renderTable(top5Data);}
+function setRankFilter(r){rankFilter=r;document.querySelectorAll('.rchip').forEach(c=>c.classList.toggle('act',parseInt(c.dataset.r)===r));renderTable(top5Data);}
+function copyAll(){const s=[...top5Data].sort((a,b)=>(a.foundOrder||999)-(b.foundOrder||999));const f=curFilter==='all'?s:s.filter(x=>x.mapType===curFilter);if(!f.length)return showToast('복사할 키워드 없음');navigator.clipboard.writeText(f.map(i=>`${i.foundOrder||''}\t${i.rank}위\t${i.mapType==='new'?'신':'구'}\t${i.keyword}`).join('\n')).then(()=>showToast(`📋 ${f.length}개 복사!`));}
+
+function updateExcelBox(){
+  if(!top5Data.length)return;
+  const nC=top5Data.filter(k=>k.mapType==='new').length,oC=top5Data.filter(k=>k.mapType==='old').length;
+  $('extxt').textContent=`🔵${nC} + 🟢${oC} = ${top5Data.length}개`;
+  $('exsub').textContent=`A(신)+B(순위) / C(구)+D(순위)`;
+  $('exbox').classList.add('show');
+}
+
+async function downloadExcel(){
+  const pd=parseInt($('perDayInput').value)||100,dy=parseInt($('daysInput').value)||1;
+  const btn=$('exbtn'),spin=$('exspin');btn.disabled=true;spin.style.display='flex';
+  try{
+    const res=await fetch('/api/export',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({keywords:top5Data,perDay:pd,days:dy,bizName:lastInfo.name||'',done:extractionDone,placeId:lastInfo.placeId||''})});
+    if(!res.ok)throw new Error((await res.json()).error||'서버 오류');
+    const blob=await res.blob(),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;
+    const d=new Date();a.download=`${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}${lastInfo.name||'result'} ${extractionDone?'추출완료':'추출중'}.xlsx`;
+    document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+    showToast('📊 엑셀 다운로드 완료!');
+  }catch(e){showToast('❌ '+e.message);}
+  finally{btn.disabled=false;spin.style.display='none';}
+}
+
+async function doPause(){const p=$('bpause').textContent.includes('재개');await fetch('/api/control',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:p?'resume':'pause'})});}
+async function doStop(){if(window._timerInt){clearInterval(window._timerInt);window._timerInt=null;}await fetch('/api/control',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'stop'})});}
+
+function showHelp(){$('helpModal').classList.add('open');}
+function closeHelp(){$('helpModal').classList.remove('open');}
+updateGroupCounts();
+
+/* ═══ 🔄 Mode Switching ═══ */
+/* ═══ 🛒 Queue ═══ */
+let batchRunning=false;
+let manualQueue=[];
+function addToQueue(){
+  const url=($('urlInput').value||'').trim();
+  if(!url||url.length<10){setErr('URL을 먼저 입력해주세요');return;}
+  const kws=remainingKeywords.length>0?[...remainingKeywords]:[...generatedKeywords];
+  if(!kws.length){setErr('먼저 [조합 생성]을 실행해주세요');return;}
+  const target=parseInt($('targetInput').value)||0;
+  const pref=getPreferMap();
+  const bizName=lastInfo.name||url.match(/(\d{7,15})/)?.[1]||'업장';
+  manualQueue.push({mode:'manual',url,keywords:kws,targetCount:target,preferMap:pref,bizName,kwCount:kws.length});
+  renderQueue();
+  showToast(`🛒 "${bizName}" 대기열 추가! (${kws.length.toLocaleString()}개 키워드)`);
+  // 다음 업장 세팅 위해 초기화
+  $('urlInput').value='';['g1','g2','g3','g4'].forEach(id=>{$(id).value='';});
+  updateGroupCounts();generatedKeywords=[];remainingKeywords=[];
+  $('gobtn').disabled=true;$('addQueueBtn').disabled=true;
+  $('previewBox').style.display='none';$('comboCount').textContent='';
+  $('bizInfoBar').style.display='none';$('shint').textContent='다음 업장을 세팅하거나 [⚡ 일괄 시작]을 누르세요.';
+}
+function renderQueue(){
+  const show=manualQueue.length>0;
+  $('queueCard').style.display=show?'block':'none';
+  $('queueCount').textContent=manualQueue.length;
+  $('queueBody').innerHTML=manualQueue.map((q,i)=>`<tr>
+    <td style="font-family:var(--mono);font-weight:700;color:var(--blue)">${i+1}</td>
+    <td style="font-weight:600">${esc(q.bizName)}</td>
+    <td style="font-family:var(--mono)">${q.kwCount.toLocaleString()}개</td>
+    <td><input type="number" min="0" max="99999" value="${q.targetCount||0}" onchange="updateQueueItem(${i},'targetCount',parseInt(this.value)||0)" style="width:70px;padding:4px 6px;border:1px solid var(--gray4);border-radius:4px;font-family:var(--mono);font-size:12px;text-align:center"></td>
+    <td><select onchange="updateQueueItem(${i},'preferMap',this.value)" style="padding:4px 6px;border:1px solid var(--gray4);border-radius:4px;font-size:11px;font-weight:600;cursor:pointer">
+      <option value="new" ${q.preferMap==='new'?'selected':''}>🔵 신지도</option>
+      <option value="old" ${q.preferMap==='old'?'selected':''}>🟢 구지도</option>
+    </select></td>
+    <td style="white-space:nowrap">
+      <button class="qdel" onclick="moveQueue(${i},-1)" title="위로" ${i===0?'disabled style="opacity:.3;cursor:default"':''}>▲</button>
+      <button class="qdel" onclick="moveQueue(${i},1)" title="아래로" ${i===manualQueue.length-1?'disabled style="opacity:.3;cursor:default"':''}>▼</button>
+    </td>
+    <td><button class="qdel" onclick="removeQueue(${i})">✕</button></td>
+  </tr>`).join('');
+}
+function updateQueueItem(i,key,val){
+  if(i<0||i>=manualQueue.length)return;
+  manualQueue[i][key]=val;
+}
+function moveQueue(i,dir){
+  const j=i+dir;
+  if(j<0||j>=manualQueue.length)return;
+  [manualQueue[i],manualQueue[j]]=[manualQueue[j],manualQueue[i]];
+  renderQueue();
+}
+function removeQueue(i){manualQueue.splice(i,1);renderQueue();}
+function clearQueue(){manualQueue=[];renderQueue();showToast('대기열 초기화');}
+function startManualBatch(){
+  if(!manualQueue.length){showToast('대기열이 비어있습니다');return;}
+  runBatch([...manualQueue]);
+  manualQueue=[];renderQueue();
+}
+
+/* ═══ ⚡ Batch Runner (Auto & Manual 공통) ═══ */
+function runBatch(tasks){
+  if(batchRunning){showToast('이미 작업이 진행 중입니다');return;}
+  batchRunning=true;
+  if($('startQueueBtn'))$('startQueueBtn').disabled=true;
+  // 배치 프로그레스 표시
+  $('batchBar').classList.add('on');
+  $('batchTitle').textContent=`🏭 다중 업장 처리: 총 ${tasks.length}개`;
+  $('batchStatus').textContent='시작 중...';
+  $('batchPfill').style.width='0%';
+  $('batchResults').innerHTML='';
+  // 기존 프로그레스/결과 초기화
+  top5Data=[];lastInfo={};etaHistory=[];extractionDone=false;
+  $('logbox').innerHTML='';$('emptyMsg').style.display='none';
+  hide('secR');show('secP');
+  $('crow').style.display='flex';
+  if(window._timerInt)clearInterval(window._timerInt);
+  window._searchStart=Date.now();
+  window._timerInt=setInterval(()=>{const sec=Math.floor((Date.now()-window._searchStart)/1000);const m=Math.floor(sec/60),s=sec%60;$('ptimer').textContent=`⏱ ${m}분 ${String(s).padStart(2,'0')}초`;},1000);
+
+  fetch('/api/batch',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({tasks})
+  }).then(async res=>{
+    const reader=res.body.getReader(),dec=new TextDecoder();let buf='';
+    while(true){
+      const{done,value}=await reader.read();if(done)break;
+      buf+=dec.decode(value,{stream:true});
+      const lines=buf.split('\n');buf=lines.pop();
+      for(const line of lines){if(!line.startsWith('data: '))continue;try{handleBatchEvent(JSON.parse(line.slice(6)));}catch(e){}}
+    }
+  }).catch(e=>{
+    showToast('❌ 연결 오류: '+e.message);
+  }).finally(()=>{
+    batchRunning=false;
+    if($('startQueueBtn'))$('startQueueBtn').disabled=false;
+  });
+}
+
+let _batchCurrentTask=0,_batchTotalTasks=0;
+function handleBatchEvent(d){
+  if(d.phase==='batch-start'){
+    _batchTotalTasks=d.totalTasks;_batchCurrentTask=0;
+    $('batchStatus').textContent=`총 ${d.totalTasks}개 업장 처리 시작`;
+  }
+  else if(d.phase==='batch-task-start'){
+    _batchCurrentTask=d.taskIndex+1;
+    const pct=Math.round((d.taskIndex/_batchTotalTasks)*100);
+    $('batchPfill').style.width=pct+'%';
+    $('batchStatus').textContent=`업장 ${_batchCurrentTask}/${_batchTotalTasks} 처리 중...`;
+    $('batchTitle').textContent=`🏭 다중 업장 처리: ${_batchCurrentTask} / ${_batchTotalTasks}`;
+    top5Data=[];etaHistory=[];extractionDone=false;
+    $('logbox').innerHTML='';$('emptyMsg').style.display='none';
+    $('pfill').style.width='0';$('pnum').textContent='0';$('ppct').textContent='';
+    $('fndN').textContent='0';$('tdone').style.display='none';$('exbox').classList.remove('show');
+    ['cntall','cntnew','cntold'].forEach(id=>$(id).textContent='0');
+    $('slbl').innerHTML=`<span class="spin">◌</span>&nbsp;[${_batchCurrentTask}/${_batchTotalTasks}] 시작...`;
+  }
+  else if(d.phase==='batch-url-done'){
+    const pct=Math.round(((d.taskIndex+1)/_batchTotalTasks)*100);
+    $('batchPfill').style.width=pct+'%';
+    const nH=d.newHits||0,oH=d.oldHits||0;
+    $('batchResults').innerHTML+=`<div class="batch-ritem"><span class="biz">✅ ${esc(d.bizName||'업장'+(d.taskIndex+1))}</span><span class="cnt">🔵${nH} 🟢${oH} = ${(d.top5||[]).length}개</span></div>`;
+    if(d.savedFile){
+      fetch('/api/download-autosave/'+encodeURIComponent(d.savedFile)).then(r=>r.blob()).then(blob=>{
+        const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=d.savedFile;
+        document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+        showToast(`📥 ${d.bizName||''} 엑셀 다운로드!`);
+      }).catch(()=>{});
+    }
+    playPing();
+  }
+  else if(d.phase==='batch-task-error'){
+    $('batchResults').innerHTML+=`<div class="batch-ritem"><span class="biz" style="color:var(--red)">❌ 업장 ${(d.taskIndex||0)+1}</span><span class="cnt" style="color:var(--red)">${esc(d.msg||'오류')}</span></div>`;
+  }
+  else if(d.phase==='batch-done'){
+    $('batchPfill').style.width='100%';
+    $('batchStatus').textContent=`✅ ${_batchTotalTasks}개 업장 모두 완료!`;
+    $('batchTitle').textContent=`✅ 다중 업장 처리 완료: ${_batchTotalTasks}개`;
+    $('slbl').innerHTML='✅ 전체 배치 완료';
+    if(window._timerInt){clearInterval(window._timerInt);window._timerInt=null;}
+    $('crow').style.display='none';
+    showToast(`🎉 ${_batchTotalTasks}개 업장 추출 완료!`);
+  }
+  else{ handleEvent(d); }
+}
+</script>
+
+<div class="modal-overlay" id="helpModal" onclick="if(event.target===this)closeHelp()">
+  <div class="modal-box" style="max-width:640px">
+    <button class="modal-close" onclick="closeHelp()">✕</button>
+    <div class="modal-title">📖 이지보드 마스터 가이드</div>
+    <div class="modal-step"><div class="modal-num">1</div><div class="modal-step-text"><b>URL 입력 및 추천 단어</b><br>분석할 플레이스 URL을 넣고 <b style="color:var(--blue)">[✦ 추천 단어 불러오기]</b>를 누르세요. 업장의 위치·메뉴·카테고리를 자동 분석하여 4개 그룹(지역/수식어/메뉴/의도어)에 최적의 단어를 채워줍니다. 36개 업종, 119개 지역 랜드마크 DB가 내장되어 있어요.</div></div>
+    <div class="modal-step"><div class="modal-num">2</div><div class="modal-step-text"><b>블랙리스트 (중복 키워드 제거)</b><br><b style="color:#EF4444">[🚫 과거 추출 엑셀 첨부]</b>로 이전에 추출한 키워드 엑셀을 업로드하면, 이미 확보된 키워드를 <b style="color:var(--green2)">자동으로 제외</b>하고 새 키워드만 찾습니다. 같은 업장을 반복 추출할 때 중복 없이 매번 <b>신선한 키워드만 발굴</b>할 수 있어서, 매주 리워드 미션 키워드를 교체하는 분들에게 필수 기능입니다.</div></div>
+    <div class="modal-step"><div class="modal-num">3</div><div class="modal-step-text"><b>정밀 조합 생성</b><br><b style="color:var(--blue)">[⚡ 조합 생성]</b> 버튼을 누르면 지역+수식어+메뉴+의도어가 결합된 키워드 수백~수천 개가 1초 만에 생성됩니다. 목표 수량 설정으로 생성량을 제어할 수 있어요.</div></div>
+    <div class="modal-step"><div class="modal-num">4</div><div class="modal-step-text"><b>추출 시작 (전수 조사)</b><br><b style="color:var(--blue)">[▶ 추출 시작]</b>을 누르면 15개 브라우저 탭이 동시에 네이버에서 검색하여, <b>5위 이내 노출 키워드</b>만 자동으로 골라냅니다. 🔵 신지도 / 🟢 구지도 판별도 자동이고, 네이버 차단 우회·세션 세탁도 알아서 처리됩니다.</div></div>
+    <div class="modal-step"><div class="modal-num">5</div><div class="modal-step-text"><b>결과 확인 및 필터</b><br>추출된 키워드는 순위·지도 유형별로 정렬되어 테이블에 표시됩니다. 상단 필터 칩(🔵 신지도 / 🟢 구지도 / 1위~5위)으로 원하는 키워드만 골라볼 수 있어요.</div></div>
+    <div class="modal-step"><div class="modal-num">6</div><div class="modal-step-text"><b>엑셀 저장</b><br><b style="color:var(--blue)">[📥 엑셀 저장]</b>을 누르면 신지도/구지도별로 분류된 결과가 일자별 시트로 나뉘어 엑셀 파일로 다운로드됩니다. 리워드 유입 미션에 바로 사용 가능한 양식이에요.</div></div>
+    <div class="modal-step"><div class="modal-num">7</div><div class="modal-step-text"><b>대기열 (다중 업장 자동화)</b><br>여러 업장을 연속으로 돌리려면 <b style="color:var(--blue)">[🛒 대기열에 추가]</b>로 모아둔 뒤 <b>[⚡ 일괄 시작]</b>을 누르세요. 각 업장별로 목표 수량, 우선 타겟(신지도/구지도)을 개별 설정할 수 있어 대행사·실행사의 대량 작업에 최적화되어 있습니다.</div></div>
+    <div style="margin-top:20px;padding:14px;background:var(--sky2);border-radius:10px;font-size:12px;color:var(--blue);line-height:1.7">
+      <b>💡 핵심 포인트:</b> 같은 키워드를 반복 접수하면 네이버가 비정상 트래픽으로 인식합니다. 이지보드로 매일·매주 새로운 키워드를 교체하면, <b>자연스러운 유입으로 인식되어 플레이스 순위에 긍정적인 점수가 반영</b>됩니다.
+    </div>
+  </div>
+</div>
+<div class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</div>
+</body>
+</html>
