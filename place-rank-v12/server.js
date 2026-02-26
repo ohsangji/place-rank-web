@@ -19,12 +19,6 @@ const puppeteer = require('puppeteer');
 const path      = require('path');
 const fs        = require('fs');
 const XLSX      = require('xlsx');
-const { SolapiMessageService } = require('solapi');
-const messageService = new SolapiMessageService(
-    process.env.SOLAPI_API_KEY,
-    process.env.SOLAPI_API_SECRET
-  );
-const verificationCodes = {};
 // https, zlib 삭제 — httpGet 제거로 더 이상 불필요
 
 const app = express();
@@ -73,27 +67,6 @@ function hashPw(pw) {
   return crypto.createHash('sha256').update(pw + 'easyboard_salt_2026').digest('hex');
 }
 
-// — 관리자 계정 자동 생성 —
-const ADMIN_SESSION = new Map();
-function ensureAdmin() {
-        const users = loadUsers();
-        if (!users.find(u => u.username === 'admin')) {
-                    users.unshift({
-                                    username: 'admin',
-                                    email: 'admin@easyboard.kr',
-                                    name: '관리자',
-                                    company: '이지보드',
-                                    phone: '',
-                                    password: hashPw('dh36936944'),
-                                    memberType: 'admin',
-                                    bizDoc: '',
-                                    createdAt: new Date().toISOString().split('T')[0],
-                                    approved: true
-                    });
-                    saveUsers(users);
-        }
-}
-ensureAdmin();
 // ── 세션 관리 (메모리) ──
 const sessions = new Map(); // token -> { username, expiresAt }
 function createSession(username) {
@@ -136,12 +109,6 @@ app.get('/login', (req, res) => {
 });
 app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', 'register.html')));
 app.get('/find-account', (req, res) => res.sendFile(path.join(__dirname, 'public', 'find-account.html')));
-app.get('/admin', (req, res) => {
-  const cookies = parseCookies(req);
-  const session = getSession(cookies.session_token);
-  if (!session) return res.redirect('/login');
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
 
 // ── API: 로그인 상태 확인 ──
 app.get('/api/auth/check', (req, res) => {
@@ -150,71 +117,8 @@ app.get('/api/auth/check', (req, res) => {
   res.json({ loggedIn: !!session, username: session?.username || null });
 });
 
-// — SMS 인증번호 발송 —
-app.post('/api/auth/send-code', async (req, res) => {
-    const { phone } = req.body;
-    if (!phone) return res.json({ success: false, message: '번호를 입력하세요.' });
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    verificationCodes[phone] = { code, expiry: Date.now() + 5 * 60 * 1000 };
-    try {
-          await messageService.sendOne({
-                  to: phone.replace(/-/g, ''),
-                  from: '01057171484',
-                  text: `[이지보드] 인증번호 [${code}]를 입력해 주세요.`
-          });
-          res.json({ success: true });
-    } catch (err) {
-          console.error(err);
-          res.status(500).json({ success: false, message: '문자 발송 실패' });
-    }
-});
-
-// — SMS 인증번호 확인 —
-app.post('/api/auth/verify-code', (req, res) => {
-    const { phone, code } = req.body;
-    const stored = verificationCodes[phone];
-    if (!stored) return res.json({ success: false, message: '인증번호를 먼저 요청하세요.' });
-    if (Date.now() > stored.expiry) return res.json({ success: false, message: '인증번호가 만료됐습니다.' });
-    if (stored.code !== code) return res.json({ success: false, message: '인증번호가 틀렸습니다.' });
-    delete verificationCodes[phone];
-    res.json({ success: true });
-});
-
 // ── API: 회원가입 (FormData + 파일 업로드) ──
 const registerHandler = (req, res) => {
-    // — 관리자 API —
-    app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
-
-    app.post('/api/admin/login', (req, res) => {
-            const { username, password } = req.body;
-            if (username !== 'admin' || hashPw(password) !== hashPw('dh36936944')) {
-                        return res.json({ success: false, message: '아이디 또는 비밀번호가 틀렸습니다.' });
-            }
-            const token = crypto.randomBytes(32).toString('hex');
-            ADMIN_SESSION.set(token, { username, expiresAt: Date.now() + 24 * 3600 * 1000 });
-            res.json({ success: true, token });
-    });
-
-    app.get('/api/admin/users', (req, res) => {
-            const token = req.headers['x-admin-token'];
-            const s = ADMIN_SESSION.get(token);
-            if (!s || Date.now() > s.expiresAt) return res.status(401).json({ success: false });
-            const users = loadUsers().map(u => ({
-                        username: u.username, name: u.name, company: u.company,
-                        phone: u.phone, email: u.email, memberType: u.memberType,
-                        bizDoc: u.bizDoc, createdAt: u.createdAt, approved: u.approved
-            }));
-            res.json({ success: true, users });
-    });
-
-    app.get('/api/admin/bizdoc/:filename', (req, res) => {
-            const token = req.headers['x-admin-token'];
-            const s = ADMIN_SESSION.get(token);
-            if (!s || Date.now() > s.expiresAt) return res.status(401).end();
-            const file = path.join(UPLOAD_DIR, req.params.filename);
-            if (!fs.existsSync(file)) return res.status(404).end();
-            res.download(file);
-    });
   const { username, email, name, company, phone, referrer, password, memberType } = req.body;
   if (!username || !email || !name || !phone || !password) {
     return res.json({ success: false, message: '필수 항목을 모두 입력해주세요.' });
@@ -334,80 +238,6 @@ app.post('/api/auth/reset-password', (req, res) => {
   users[idx].password = hashPw(password);
   saveUsers(users);
   console.log(`  [AUTH] 비밀번호 변경: ${username}`);
-  res.json({ success: true });
-});
-
-// ══════════════════════════════════════════════════════════
-// 🛡️ 관리자 API (Admin)
-// ══════════════════════════════════════════════════════════
-function adminRequired(req, res, next) {
-  const cookies = parseCookies(req);
-  const session = getSession(cookies.session_token);
-  if (!session) return res.status(401).json({ success: false, message: '로그인이 필요합니다.' });
-  const users = loadUsers();
-  const user = users.find(u => u.username === session.username);
-  if (!user || user.role !== 'admin') return res.status(403).json({ success: false, message: '관리자 권한이 필요합니다.' });
-  req.user = session;
-  next();
-}
-
-app.get('/api/admin/users', adminRequired, (req, res) => {
-  const users = loadUsers();
-  res.json(users.map(u => ({ ...u, password: undefined })));
-});
-
-app.post('/api/admin/users', adminRequired, (req, res) => {
-  const { username, name, email, company, phone, password, role, approved } = req.body;
-  if (!username || !name || !password) return res.json({ success: false, message: '아이디, 이름, 비밀번호는 필수입니다.' });
-  const users = loadUsers();
-  if (users.find(u => u.username === username)) return res.json({ success: false, message: '이미 사용 중인 아이디입니다.' });
-  users.push({
-    username, name, email: email||'', company: company||'', phone: phone||'',
-    referrer:'', memberType:'general', bizDoc:'',
-    password: hashPw(password), role: role||'user',
-    approved: approved !== false,
-    createdAt: new Date().toISOString().split('T')[0]
-  });
-  saveUsers(users);
-  console.log(`  [ADMIN] 회원 추가: ${username} (by ${req.user.username})`);
-  res.json({ success: true });
-});
-
-app.put('/api/admin/users/:idx', adminRequired, (req, res) => {
-  const idx = parseInt(req.params.idx);
-  const users = loadUsers();
-  if (idx < 0 || idx >= users.length) return res.json({ success: false, message: '회원을 찾을 수 없습니다.' });
-  const { name, email, company, phone, password, role, approved } = req.body;
-  if (name) users[idx].name = name;
-  if (email !== undefined) users[idx].email = email;
-  if (company !== undefined) users[idx].company = company;
-  if (phone !== undefined) users[idx].phone = phone;
-  if (password) users[idx].password = hashPw(password);
-  if (role) users[idx].role = role;
-  if (approved !== undefined) users[idx].approved = approved;
-  saveUsers(users);
-  console.log(`  [ADMIN] 회원 수정: ${users[idx].username} (by ${req.user.username})`);
-  res.json({ success: true });
-});
-
-app.post('/api/admin/users/:idx/approve', adminRequired, (req, res) => {
-  const idx = parseInt(req.params.idx);
-  const users = loadUsers();
-  if (idx < 0 || idx >= users.length) return res.json({ success: false, message: '회원을 찾을 수 없습니다.' });
-  users[idx].approved = true;
-  saveUsers(users);
-  console.log(`  [ADMIN] 회원 승인: ${users[idx].username} (by ${req.user.username})`);
-  res.json({ success: true });
-});
-
-app.delete('/api/admin/users/:idx', adminRequired, (req, res) => {
-  const idx = parseInt(req.params.idx);
-  const users = loadUsers();
-  if (idx < 0 || idx >= users.length) return res.json({ success: false, message: '회원을 찾을 수 없습니다.' });
-  if (users[idx].role === 'admin') return res.json({ success: false, message: '관리자 계정은 삭제할 수 없습니다.' });
-  const removed = users.splice(idx, 1)[0];
-  saveUsers(users);
-  console.log(`  [ADMIN] 회원 삭제: ${removed.username} (by ${req.user.username})`);
   res.json({ success: true });
 });
 
