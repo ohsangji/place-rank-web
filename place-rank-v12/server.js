@@ -109,6 +109,12 @@ app.get('/login', (req, res) => {
 });
 app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', 'register.html')));
 app.get('/find-account', (req, res) => res.sendFile(path.join(__dirname, 'public', 'find-account.html')));
+app.get('/admin', (req, res) => {
+  const cookies = parseCookies(req);
+  const session = getSession(cookies.session_token);
+  if (!session) return res.redirect('/login');
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
 
 // ── API: 로그인 상태 확인 ──
 app.get('/api/auth/check', (req, res) => {
@@ -238,6 +244,80 @@ app.post('/api/auth/reset-password', (req, res) => {
   users[idx].password = hashPw(password);
   saveUsers(users);
   console.log(`  [AUTH] 비밀번호 변경: ${username}`);
+  res.json({ success: true });
+});
+
+// ══════════════════════════════════════════════════════════
+// 🛡️ 관리자 API (Admin)
+// ══════════════════════════════════════════════════════════
+function adminRequired(req, res, next) {
+  const cookies = parseCookies(req);
+  const session = getSession(cookies.session_token);
+  if (!session) return res.status(401).json({ success: false, message: '로그인이 필요합니다.' });
+  const users = loadUsers();
+  const user = users.find(u => u.username === session.username);
+  if (!user || user.role !== 'admin') return res.status(403).json({ success: false, message: '관리자 권한이 필요합니다.' });
+  req.user = session;
+  next();
+}
+
+app.get('/api/admin/users', adminRequired, (req, res) => {
+  const users = loadUsers();
+  res.json(users.map(u => ({ ...u, password: undefined })));
+});
+
+app.post('/api/admin/users', adminRequired, (req, res) => {
+  const { username, name, email, company, phone, password, role, approved } = req.body;
+  if (!username || !name || !password) return res.json({ success: false, message: '아이디, 이름, 비밀번호는 필수입니다.' });
+  const users = loadUsers();
+  if (users.find(u => u.username === username)) return res.json({ success: false, message: '이미 사용 중인 아이디입니다.' });
+  users.push({
+    username, name, email: email||'', company: company||'', phone: phone||'',
+    referrer:'', memberType:'general', bizDoc:'',
+    password: hashPw(password), role: role||'user',
+    approved: approved !== false,
+    createdAt: new Date().toISOString().split('T')[0]
+  });
+  saveUsers(users);
+  console.log(`  [ADMIN] 회원 추가: ${username} (by ${req.user.username})`);
+  res.json({ success: true });
+});
+
+app.put('/api/admin/users/:idx', adminRequired, (req, res) => {
+  const idx = parseInt(req.params.idx);
+  const users = loadUsers();
+  if (idx < 0 || idx >= users.length) return res.json({ success: false, message: '회원을 찾을 수 없습니다.' });
+  const { name, email, company, phone, password, role, approved } = req.body;
+  if (name) users[idx].name = name;
+  if (email !== undefined) users[idx].email = email;
+  if (company !== undefined) users[idx].company = company;
+  if (phone !== undefined) users[idx].phone = phone;
+  if (password) users[idx].password = hashPw(password);
+  if (role) users[idx].role = role;
+  if (approved !== undefined) users[idx].approved = approved;
+  saveUsers(users);
+  console.log(`  [ADMIN] 회원 수정: ${users[idx].username} (by ${req.user.username})`);
+  res.json({ success: true });
+});
+
+app.post('/api/admin/users/:idx/approve', adminRequired, (req, res) => {
+  const idx = parseInt(req.params.idx);
+  const users = loadUsers();
+  if (idx < 0 || idx >= users.length) return res.json({ success: false, message: '회원을 찾을 수 없습니다.' });
+  users[idx].approved = true;
+  saveUsers(users);
+  console.log(`  [ADMIN] 회원 승인: ${users[idx].username} (by ${req.user.username})`);
+  res.json({ success: true });
+});
+
+app.delete('/api/admin/users/:idx', adminRequired, (req, res) => {
+  const idx = parseInt(req.params.idx);
+  const users = loadUsers();
+  if (idx < 0 || idx >= users.length) return res.json({ success: false, message: '회원을 찾을 수 없습니다.' });
+  if (users[idx].role === 'admin') return res.json({ success: false, message: '관리자 계정은 삭제할 수 없습니다.' });
+  const removed = users.splice(idx, 1)[0];
+  saveUsers(users);
+  console.log(`  [ADMIN] 회원 삭제: ${removed.username} (by ${req.user.username})`);
   res.json({ success: true });
 });
 

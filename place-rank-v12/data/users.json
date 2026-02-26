@@ -1,0 +1,16 @@
+[
+  {
+    "username": "admin",
+    "email": "admin@easyboard.co.kr",
+    "name": "관리자",
+    "company": "이지보드",
+    "phone": "01000000000",
+    "referrer": "",
+    "memberType": "general",
+    "bizDoc": "",
+    "password": "d64496767f5d07492e37c8abbec1053a45f3f583eade3ddf1ad6877ebb550eeb",
+    "role": "admin",
+    "approved": true,
+    "createdAt": "2026-02-26"
+  }
+]
