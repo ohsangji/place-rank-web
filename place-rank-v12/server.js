@@ -19,6 +19,12 @@ const puppeteer = require('puppeteer');
 const path      = require('path');
 const fs        = require('fs');
 const XLSX      = require('xlsx');
+const { SolapiMessageService } = require('solapi');
+const messageService = new SolapiMessageService(
+    process.env.SOLAPI_API_KEY,
+    process.env.SOLAPI_API_SECRET
+  );
+const verificationCodes = {};
 // https, zlib 삭제 — httpGet 제거로 더 이상 불필요
 
 const app = express();
@@ -115,6 +121,36 @@ app.get('/api/auth/check', (req, res) => {
   const cookies = parseCookies(req);
   const session = getSession(cookies.session_token);
   res.json({ loggedIn: !!session, username: session?.username || null });
+});
+
+// — SMS 인증번호 발송 —
+app.post('/api/auth/send-code', async (req, res) => {
+    const { phone } = req.body;
+    if (!phone) return res.json({ success: false, message: '번호를 입력하세요.' });
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    verificationCodes[phone] = { code, expiry: Date.now() + 5 * 60 * 1000 };
+    try {
+          await messageService.sendOne({
+                  to: phone.replace(/-/g, ''),
+                  from: '01057171484',
+                  text: `[이지보드] 인증번호 [${code}]를 입력해 주세요.`
+          });
+          res.json({ success: true });
+    } catch (err) {
+          console.error(err);
+          res.status(500).json({ success: false, message: '문자 발송 실패' });
+    }
+});
+
+// — SMS 인증번호 확인 —
+app.post('/api/auth/verify-code', (req, res) => {
+    const { phone, code } = req.body;
+    const stored = verificationCodes[phone];
+    if (!stored) return res.json({ success: false, message: '인증번호를 먼저 요청하세요.' });
+    if (Date.now() > stored.expiry) return res.json({ success: false, message: '인증번호가 만료됐습니다.' });
+    if (stored.code !== code) return res.json({ success: false, message: '인증번호가 틀렸습니다.' });
+    delete verificationCodes[phone];
+    res.json({ success: true });
 });
 
 // ── API: 회원가입 (FormData + 파일 업로드) ──
