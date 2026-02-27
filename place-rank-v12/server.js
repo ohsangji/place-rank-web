@@ -334,16 +334,29 @@ const SESSION_LIMIT = 300;
 
 async function getBrowser() {
   if (browser && browser.isConnected()) return browser;
+  // ★ 시스템 Chrome → puppeteer 번들 Chrome 순으로 탐색 ★
   const candidates = [
-    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    '/Applications/Chromium.app/Contents/MacOS/Chromium',
     '/usr/bin/google-chrome-stable',
     '/usr/bin/google-chrome',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/chromium',
+    '/snap/bin/chromium',
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    '/Applications/Chromium.app/Contents/MacOS/Chromium',
   ];
-  const exe = candidates.find(p => fs.existsSync(p));
+  let exe = candidates.find(p => fs.existsSync(p));
+  // puppeteer 번들 Chrome 자동 탐지 (npx puppeteer browsers install chrome 한 경우)
+  if (!exe) {
+    try { exe = puppeteer.executablePath(); } catch(e) {}
+  }
+  if (!exe) {
+    console.error('\n  ❌ Chrome을 찾을 수 없습니다! 아래 중 하나를 실행하세요:');
+    console.error('     npx puppeteer browsers install chrome');
+    console.error('     또는 apt install -y google-chrome-stable\n');
+  }
   browser = await puppeteer.launch({
     headless: 'new',  // ★ 신형 headless — 구형(true)은 네이버가 100% 탐지 ★
-    executablePath: exe,
+    ...(exe ? { executablePath: exe } : {}),
     args: [
       '--no-sandbox','--disable-setuid-sandbox','--disable-dev-shm-usage',
       '--disable-gpu','--lang=ko-KR',
@@ -354,6 +367,7 @@ async function getBrowser() {
     ],
     defaultViewport: null,  // ★ page별 viewport 사용 (데스크톱/모바일 불일치 방지) ★
   });
+  console.log(`  ✅ Chrome 실행됨: ${exe || '(puppeteer 내장)'}`);
   return browser;
 }
 
